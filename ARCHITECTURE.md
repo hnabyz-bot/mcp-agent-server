@@ -1,66 +1,93 @@
 ### **MCP-Agent-Server 시스템 아키텍처 (논리적)**
 
+> **📝 2026-01-12 업데이트:** n8n을 중앙 오케스트레이터로 하는 아키텍처로 전면 재설계
+> **주요 변경:** ~~Nginx + 포트 포워딩~~ → Cloudflare Tunnel, ~~독립 서버~~ → n8n + AI Agent Server
+
 ```mermaid
 graph TD
-    A["User Interface (CLI/Web)"] --> B["API Endpoints"];
-    B --> C["Workflow & Task Engine"];
-    C --> D["Agent Factory"];
-    C --> E["Task Store"];
-    D --> F["AI Agents"];
-    F --> G["External AI APIs"];
-    F --> H["File Service"];
+    A["User Interface (CLI/Web)"] --> B["Cloudflare (DNS/Tunnel)"];
+    B --> C["n8n Workflow Engine<br/>(Raspberry Pi 5)"];
+    C --> D["AI Agent Server<br/>(Node.js/Express)"];
+    C --> E["Agent Router<br/>(n8n Switch/IF)"];
+    E --> F["AI Agent Adapters"];
+    F --> G1["Claude API"];
+    F --> G2["Gemini API"];
+    F --> G3["Perplexity API"];
+    F --> G4["OpenAI API"];
+    D --> H["File Service"];
     H --> I["File System Workspace"];
+    C --> J["Task Store<br/>(n8n Database)"];
 ```
 
 ### **흐름 설명 (논리적)**
 
-1.  **사용자 (User):** `CLI` 또는 `웹 UI`를 통해 개발 목표나 작업을 지시합니다.
-2.  **API Endpoints:** 서버의 진입점으로, 사용자의 요청을 받아 내부 시스템에 전달합니다.
-3.  **Workflow & Task Engine:** 작업의 생성, 분해, 상태 변경 등 전체적인 흐름을 제어하는 핵심 엔진입니다.
-4.  **Agent Factory:** 작업에 필요한 AI 에이전트(Gemini, Claude 등)를 동적으로 생성하고 제공합니다.
-5.  **AI Agent Adapters:** 각 AI 모델의 API와 통신하는 역할을 수행하며, `File Service`를 통해 작업 공간의 파일에 접근합니다.
-6.  **External Dependencies:** 에이전트가 호출하는 외부 AI API들과, 실제 코드가 저장되는 파일 시스템(Workspace)을 의미합니다.
+1.  **사용자 (User):** `CLI`, `웹 UI`, 또는 외부 시스템을 통해 개발 목표나 작업을 지시합니다.
+2.  ⏳ **Cloudflare:** DNS 및 Tunnel을 통해 외부 요청을 Raspberry Pi 5로 안전하게 라우팅합니다. `[계획: 미구축]`
+3.  ✅ **n8n Workflow Engine:** 모든 작업의 중앙 오케스트레이터로 작동합니다. `[완료: 2026-01-12 - 로컬 구축]`
+    *   ⏳ 사용자 요청 수신 (Webhook) `[계획: 미구축]`
+    *   ⏳ 작업 분해 및 라우팅 `[계획: 미구축]`
+    *   ⏳ AI 에이전트 호출 및 결과 수집 `[계획: 미구축]`
+    *   ⏳ 작업 상태 추적 및 저장 `[계획: 미구축]`
+4.  ⏳ **Agent Router (n8n):** n8n의 Switch/IF 노드를 통해 작업 유형에 따라 최적의 AI 에이전트를 선택합니다. `[계획: 미구축]`
+5.  ⏳ **AI Agent Server:** Node.js/Express 기반 서버로 각 AI 모델의 어댑터를 제공합니다. `[계획: 미구축]`
+6.  ⏳ **AI Agent Adapters:** 각 AI 모델(Claude, Gemini, Perplexity, OpenAI)의 API와 통신합니다. `[계획: 미구축]`
+7.  ⏳ **File Service:** 워크스페이스의 파일을 읽고, 쓰고, 수정하는 기능을 제공합니다. `[계획: 미구축]`
+8.  ⏳ **Task Store:** n8n 내부 데이터베이스 또는 외부 DB를 통해 작업 상태를 영구 저장합니다. `[계획: 미구축]`
 
 ---
 
-### **물리적 워크플로우 (상세 접속 및 배포 아키텍처)**
+### **물리적 워크플로우 (Cloudflare + Raspberry Pi 5 아키텍처)** `[2026-01-12 전면 재설계]`
+
+> **🔄 주요 변경:** ~~Nginx + 포트 포워딩 방식~~ → Cloudflare Tunnel 방식으로 전환
 
 ```mermaid
 graph TD
     subgraph "외부 (User)"
-        UserDevice["User's Device"]
+        UserDevice["User's Device<br/>(Browser/CLI)"]
     end
 
-    subgraph "인터넷 (Internet)"
-        DNS["Public DNS Server"]
+    subgraph "Cloudflare Network"
+        CloudflareDNS["Cloudflare DNS"]
+        CloudflareTunnel["Cloudflare Tunnel<br/>(Encrypted Connection)"]
+        CloudflareSSL["SSL/TLS Termination"]
     end
 
-    subgraph "로컬 네트워크 (Local Network)"
-        Router["Home/Office Router"]
-        Nginx["Reverse Proxy (Nginx)"]
-        ServerApp["MCP-Agent-Server"]
+    subgraph "Raspberry Pi 5 (Local Network)"
+        CloudflaredDaemon["cloudflared<br/>(Tunnel Client)"]
+        N8N["n8n Workflow Engine<br/>(Port 5678)"]
+        AgentServer["AI Agent Server<br/>(Node.js/Express)"]
         Workspace["File System Workspace"]
     end
-    
+
     subgraph "외부 서비스 (External Services)"
-        AiApis["External AI APIs"]
+        Claude["Claude API"]
+        Gemini["Gemini API"]
+        Perplexity["Perplexity API"]
+        OpenAI["OpenAI API"]
     end
 
-    UserDevice -- "1. 도메인 접속" --> DNS;
-    DNS -- "2. IP 주소 응답" --> UserDevice;
-    UserDevice -- "3. HTTPS 요청" --> Router;
-    Router -- "4. 포트 포워딩" --> Nginx;
-    Nginx -- "5. 요청 전달" --> ServerApp;
-    ServerApp -- "6. 파일 시스템 접근" --> Workspace;
-    ServerApp -- "7. AI API 호출" --> AiApis;
+    UserDevice -- "1. mcp.yourdomain.com 접속" --> CloudflareDNS;
+    CloudflareDNS -- "2. Cloudflare Edge로 라우팅" --> CloudflareSSL;
+    CloudflareSSL -- "3. SSL/TLS 암호화" --> CloudflareTunnel;
+    CloudflareTunnel -- "4. 암호화된 터널 연결" --> CloudflaredDaemon;
+    CloudflaredDaemon -- "5. 로컬 요청 전달" --> N8N;
+    N8N -- "6. AI 작업 요청" --> AgentServer;
+    AgentServer -- "7. 파일 시스템 접근" --> Workspace;
+    N8N -- "8. AI API 호출" --> Claude;
+    N8N -- "8. AI API 호출" --> Gemini;
+    N8N -- "8. AI API 호출" --> Perplexity;
+    N8N -- "8. AI API 호출" --> OpenAI;
 ```
 
-### **상세 흐름 설명 (외부 접속 시나리오)**
+### **상세 흐름 설명 (Cloudflare Tunnel 기반 접속)**
 
-1.  **DNS 조회:** 외부 사용자가 웹 브라우저에 `mcp.your-domain.com`을 입력하면, 컴퓨터는 `공용 DNS 서버`에 해당 도메인의 IP 주소를 물어봅니다.
-2.  **IP 주소 응답:** DNS 서버는 미리 등록된 `Public IP`(집이나 사무실의 공인 IP) 주소를 사용자에게 알려줍니다. (이때 DDNS 서비스가 중간에 사용될 수 있습니다.)
-3.  **HTTPS 요청:** 사용자의 브라우저는 알아낸 `Public IP` 주소를 목적지로 하여 HTTPS 요청을 보냅니다. 이 요청은 집이나 사무실의 `라우터(공유기)`에 도달합니다.
-4.  **포트 포워딩:** `라우터`는 443 포트로 들어온 요청을, 미리 설정된 규칙에 따라 내부 네트워크의 `서버 머신`(Nginx가 실행 중인 PC)으로 전달(포트 포워딩)합니다.
-5.  **리버스 프록시 및 SSL 처리:** `Nginx`는 요청을 받아 SSL 인증서(`mcp.your-domain.com` 용)를 통해 HTTPS 통신을 처리합니다. 그 후 암호화가 해제된 일반 HTTP 요청을 내부적으로 실행 중인 `MCP-Agent-Server`(예: `http://localhost:3000`)으로 전달합니다.
-6.  **애플리케이션 로직 수행:** `MCP-Agent-Server`는 요청을 처리하고, 로컬 `파일 시스템`의 코드를 읽고 쓰는 등의 작업을 수행합니다.
-7.  **외부 API 호출:** 필요시, 서버는 다시 인터넷을 통해 `외부 AI API`를 호출하고 그 결과를 받아 로직을 이어갑니다.
+1.  ⏳ **도메인 접속:** 외부 사용자가 `mcp.yourdomain.com`을 입력합니다. `[계획: 미구축]`
+2.  ⏳ **Cloudflare DNS 조회:** Cloudflare DNS가 요청을 받아 Cloudflare의 Edge 네트워크로 라우팅합니다. `[계획: 미구축]`
+3.  ⏳ **SSL/TLS 처리:** Cloudflare가 SSL/TLS 인증서를 통해 HTTPS 통신을 처리합니다. (Let's Encrypt 필요 없음) `[계획: 미구축]`
+4.  ⏳ **Cloudflare Tunnel:** Cloudflare Edge에서 Raspberry Pi 5의 `cloudflared` 데몬으로 암호화된 터널을 통해 요청을 전달합니다. `[계획: 미구축]`
+    *   **장점:** 포트 포워딩 불필요, 동적 IP 문제 해결, DDoS 보호
+5.  ⏳ **Tunnel Client:** Raspberry Pi 5의 `cloudflared` 데몬이 요청을 받아 로컬 n8n(Port 5678)으로 전달합니다. `[계획: 미구축]`
+6.  ✅ **n8n Workflow 실행:** n8n이 요청을 분석하고 적절한 워크플로우를 실행합니다. `[완료: 2026-01-12 - 로컬 구축, 워크플로우는 미구축]`
+7.  ⏳ **AI Agent Server 호출:** 필요시 n8n이 로컬 AI Agent Server(Node.js/Express)를 HTTP로 호출합니다. `[계획: 미구축]`
+8.  ⏳ **파일 시스템 작업:** Agent Server가 워크스페이스의 파일을 읽고 쓰는 작업을 수행합니다. `[계획: 미구축]`
+9.  ⏳ **외부 AI API 호출:** n8n이 직접 또는 Agent Server를 통해 외부 AI API(Claude, Gemini 등)를 호출합니다. `[계획: 미구축]`

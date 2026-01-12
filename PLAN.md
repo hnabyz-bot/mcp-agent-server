@@ -1,67 +1,104 @@
 ### **MCP 전체 구축 계획서 (Full Project Plan)**
 
-#### **Phase 1-1: Node.js & Express 서버 환경 구축**
-1.  `Node.js 프로젝트 초기화: 'package.json' 파일 생성`
-2.  `TypeScript 및 Node.js 타입 라이브러리 설치`
-3.  `TypeScript 컴파일러 설정 파일 'tsconfig.json' 생성`
-4.  `Express 웹 프레임워크 및 타입 라이브러리 설치`
-5.  `소스 코드 관리를 위한 'src' 디렉토리 생성`
-6.  `'src/index.ts' 파일에 기본 Express 서버 코드 작성`
-7.  `'package.json'에 서버 빌드 및 실행 스크립트 추가`
+> **📝 2026-01-12 업데이트:** 74단계 상세 계획으로 확장 (기존 48단계)
+> **주요 추가:** Phase 0 인프라 구축 (7단계), n8n 통합 로직 전 Phase에 반영
 
-#### **Phase 1-2: 핵심 API 및 서비스 구조 설계**
-8.  `API 요청을 처리할 'src/controllers' 디렉토리 생성`
-9.  `비즈니스 로직을 담당할 'src/services' 디렉토리 생성`
-10. `공통 타입을 관리할 'src/types' 디렉토리 생성`
-11. `작업(Task) 상태 관리를 위한 타입 정의 ('src/types/task.d.ts')`
-12. `메모리 기반의 임시 데이터베이스 서비스 구현 ('src/services/taskStore.ts')`
-13. `작업 생성 API 컨트롤러 및 라우트 구현 ('/tasks', POST)`
-14. `작업 상태 조회 API 컨트롤러 및 라우트 구현 ('/tasks/:id', GET)`
+#### **Phase 0: Raspberry Pi 5 & n8n 인프라 구축** 🆕
+1.  ✅ `Raspberry Pi 5 OS 설치 및 초기 설정 (Ubuntu/Raspberry Pi OS)` `[완료: 2026-01-12]`
+2.  ✅ `n8n 설치 (Docker 또는 npm 방식)` `[완료: 2026-01-12]`
+3.  ✅ `n8n 초기 설정 및 관리자 계정 생성` `[완료: 2026-01-12]`
+4.  ⏳ `Cloudflare 계정 설정 및 도메인 등록` `[계획: 미구축]`
+5.  ⏳ `Cloudflare Tunnel 생성 및 'cloudflared' 데몬 설치` `[계획: 미구축]`
+6.  ⏳ `Cloudflare DNS 설정: n8n 접속 도메인 연결 (예: mcp.yourdomain.com)` `[계획: 미구축]`
+7.  ⏳ `n8n 외부 접속 테스트 및 SSL/TLS 확인` `[계획: 미구축]`
 
-#### **Phase 1-3: 첫 번째 AI 에이전트 및 파일 시스템 연동**
-15. `외부 API 연동을 위한 'axios' 라이브러리 설치`
-16. `API 키 등 비밀 정보 관리를 위한 'dotenv' 라이브러리 설치 및 '.env' 파일 생성`
-17. `.gitignore 파일에 '.env' 및 'dist' 폴더 추가`
-18. `Gemini 에이전트 로직을 구현할 'src/services/geminiAgent.ts' 파일 생성`
-19. `파일 시스템 제어를 위한 'src/services/fileService.ts' 파일 생성`
-20. `작업 실행 시 에이전트 호출 및 파일 쓰기를 연동하는 메인 서비스 로직 구현`
+#### **Phase 1-1: AI Agent Server 환경 구축** `[계획: 미구축]`
+8.  ⏳ `Raspberry Pi 5에 Node.js 설치 (LTS 버전)` `[계획: 미구축]`
+9.  ⏳ `Node.js 프로젝트 초기화: 'package.json' 파일 생성` `[계획: 미구축]`
+10. ⏳ `TypeScript 및 Node.js 타입 라이브러리 설치` `[계획: 미구축]`
+11. ⏳ `TypeScript 컴파일러 설정 파일 'tsconfig.json' 생성` `[계획: 미구축]`
+12. ⏳ `Express 웹 프레임워크 및 타입 라이브러리 설치` `[계획: 미구축]`
+13. ⏳ `소스 코드 관리를 위한 'src' 디렉토리 생성` `[계획: 미구축]`
+14. ⏳ `'src/index.ts' 파일에 기본 Express 서버 코드 작성 (n8n과 통신 가능하도록)` `[계획: 미구축]`
+15. ⏳ `'package.json'에 서버 빌드 및 실행 스크립트 추가` `[계획: 미구축]`
 
-#### **Phase 2-1: 멀티 에이전트 어댑터 추가**
-21. `AI 에이전트 인터페이스 정의 ('src/types/agent.d.ts')`
-22. `Claude 에이전트 로직을 구현할 'src/services/claudeAgent.ts' 파일 생성`
-23. `Perplexity 에이전트 로직을 구현할 'src/services/perplexityAgent.ts' 파일 생성`
-24. `각 에이전트가 AI 에이전트 인터페이스를 따르도록 리팩토링`
+#### **Phase 1-2: n8n과 AI Agent Server 통합** `[계획: 미구축]`
+16. ⏳ `n8n에서 Webhook 노드 생성 (사용자 요청 수신용)` `[계획: 미구축]`
+17. ⏳ `n8n에서 HTTP Request 노드 생성 (AI Agent Server 호출용)` `[계획: 미구축]`
+18. ⏳ `AI Agent Server에 '/webhook' 엔드포인트 구현 (n8n 요청 수신)` `[계획: 미구축]`
+19. ⏳ `n8n에서 AI Agent Server로 작업 요청 전달 워크플로우 구성` `[계획: 미구축]`
+20. ⏳ `AI Agent Server에서 n8n으로 결과 반환 로직 구현` `[계획: 미구축]`
 
-#### **Phase 2-2: 에이전트 라우팅 및 워크스페이스**
-25. `에이전트를 동적으로 선택하는 '에이전트 팩토리' 구현 ('src/services/agentFactory.ts')`
-26. `작업 생성 API('/tasks', POST) 요청 본문에 'agent' 선택 필드 추가`
-27. `요청된 'agent'에 따라 팩토리에서 적절한 에이전트 인스턴스를 반환하도록 로직 수정`
-28. `작업별 고유 워크스페이스(임시 디렉토리) 생성/삭제 로직을 'fileService'에 추가`
+#### **Phase 1-3: 핵심 API 및 서비스 구조 설계** `[계획: 미구축]`
+21. ⏳ `API 요청을 처리할 'src/controllers' 디렉토리 생성` `[계획: 미구축]`
+22. ⏳ `비즈니스 로직을 담당할 'src/services' 디렉토리 생성` `[계획: 미구축]`
+23. ⏳ `공통 타입을 관리할 'src/types' 디렉토리 생성` `[계획: 미구축]`
+24. ⏳ `작업(Task) 상태 관리를 위한 타입 정의 ('src/types/task.d.ts')` `[계획: 미구축]`
+25. ⏳ `작업 생성 API 컨트롤러 및 라우트 구현 ('/tasks', POST)` `[계획: 미구축]`
+26. ⏳ `작업 상태 조회 API 컨트롤러 및 라우트 구현 ('/tasks/:id', GET)` `[계획: 미구축]`
+27. ⏳ `n8n Database 노드를 통한 작업 상태 저장 워크플로우 구성` `[계획: 미구축]`
 
-#### **Phase 3-1: CLI (Command-Line Interface) 개발**
-29. `CLI 개발용 라이브러리 'commander' 및 'inquirer' 설치`
-30. `CLI 애플리케이션 진입점 파일 'src/cli.ts' 생성`
-31. `CLI에서 '신규 개발 작업 생성'을 처리하는 명령어 구현`
-32. `CLI에서 '작업 진행 상태 조회'를 처리하는 명령어 구현`
-33. `CLI에서 AI가 제안한 '코드 변경사항(diff) 확인' 기능 구현`
-34. `CLI에서 '변경사항 승인/반려'를 처리하는 기능 구현`
-35. `package.json에 CLI 실행 스크립트 추가`
+#### **Phase 1-4: 첫 번째 AI 에이전트 및 파일 시스템 연동** `[계획: 미구축]`
+28. ⏳ `외부 API 연동을 위한 'axios' 라이브러리 설치` `[계획: 미구축]`
+29. ⏳ `API 키 등 비밀 정보 관리를 위한 'dotenv' 라이브러리 설치 및 '.env' 파일 생성` `[계획: 미구축]`
+30. ⏳ `.gitignore 파일에 '.env' 및 'dist' 폴더 추가` `[계획: 미구축]`
+31. ⏳ `Claude 에이전트 로직을 구현할 'src/services/claudeAgent.ts' 파일 생성` `[계획: 미구축]`
+32. ⏳ `Gemini 에이전트 로직을 구현할 'src/services/geminiAgent.ts' 파일 생성` `[계획: 미구축]`
+33. ⏳ `파일 시스템 제어를 위한 'src/services/fileService.ts' 파일 생성` `[계획: 미구축]`
+34. ⏳ `n8n에서 AI 에이전트 API 호출 워크플로우 구성 (HTTP Request 노드 활용)` `[계획: 미구축]`
+35. ⏳ `작업 실행 시 에이전트 호출 및 파일 쓰기를 연동하는 메인 서비스 로직 구현` `[계획: 미구축]`
 
-#### **Phase 4-1: 자동 작업 분해 (Task Decomposition)**
-36. `상위 작업을 하위 작업으로 분해하는 '분해 에이전트(Decomposition Agent)' 역할 정의 및 프롬프트 설계`
-37. `'복합 작업(Complex Task)' 요청을 처리하는 신규 API 엔드포인트('/complex-tasks', POST) 구현`
-38. `해당 API에서 '분해 에이전트'를 호출하여 하위 작업 목록을 생성하고, 각 하위 작업을 순차적으로 실행하는 로직 구현`
+#### **Phase 2-1: 멀티 에이전트 어댑터 추가** `[계획: 미구축]`
+36. ⏳ `AI 에이전트 인터페이스 정의 ('src/types/agent.d.ts')` `[계획: 미구축]`
+37. ⏳ `Perplexity 에이전트 로직을 구현할 'src/services/perplexityAgent.ts' 파일 생성` `[계획: 미구축]`
+38. ⏳ `OpenAI 에이전트 로직을 구현할 'src/services/openaiAgent.ts' 파일 생성` `[계획: 미구축]`
+39. ⏳ `각 에이전트가 AI 에이전트 인터페이스를 따르도록 리팩토링` `[계획: 미구축]`
+40. ⏳ `n8n에서 각 AI 에이전트 API 호출 노드 추가 (HTTP Request 노드)` `[계획: 미구축]`
 
-#### **Phase 4-2: 에이전트간 협업 (Inter-Agent Collaboration)**
-39. `'코드 작성', '코드 리뷰', '테스트 작성' 등 에이전트 역할을 `src/types/roles.d.ts`에 정의`
-40. `하위 작업 목록을 역할 기반으로 에이전트에게 순차 할당하는 '워크플로우 엔진' 서비스('src/services/workflowEngine.ts') 구현`
-41. `'리뷰 에이전트'의 피드백을 '작성 에이전트'에게 다시 전달하여 코드를 수정하게 하는 로직 구현`
-42. `구현된 워크플로우 엔진을 '복합 작업' API에 최종 통합`
+#### **Phase 2-2: n8n 기반 에이전트 라우팅 및 워크스페이스** `[계획: 미구축]`
+41. ⏳ `n8n에서 Switch 노드를 활용한 작업 유형별 라우팅 워크플로우 구성` `[계획: 미구축]`
+42. ⏳ `작업 유형 분류: 코드 생성, 디버깅, 문서 작성, 코드 리뷰` `[계획: 미구축]`
+43. ⏳ `각 작업 유형에 최적화된 AI 에이전트 자동 선택 로직 (n8n Switch 노드)` `[계획: 미구축]`
+44. ⏳ `에이전트를 동적으로 선택하는 '에이전트 팩토리' 구현 ('src/services/agentFactory.ts')` `[계획: 미구축]`
+45. ⏳ `AI Agent Server에 '/agent/:type' 엔드포인트 추가 (에이전트 선택용)` `[계획: 미구축]`
+46. ⏳ `작업별 고유 워크스페이스(임시 디렉토리) 생성/삭제 로직을 'fileService'에 추가` `[계획: 미구축]`
+47. ⏳ `n8n을 통한 워크스페이스 상태 공유 및 충돌 방지 로직 구현` `[계획: 미구축]`
+
+#### **Phase 3-1: CLI (Command-Line Interface) 개발** `[계획: 미구축]`
+48. ⏳ `CLI 개발용 라이브러리 'commander' 및 'inquirer' 설치` `[계획: 미구축]`
+49. ⏳ `CLI 애플리케이션 진입점 파일 'src/cli.ts' 생성` `[계획: 미구축]`
+50. ⏳ `CLI에서 n8n Webhook을 호출하여 '신규 개발 작업 생성' 명령어 구현` `[계획: 미구축]`
+51. ⏳ `CLI에서 n8n API를 통해 '작업 진행 상태 조회' 명령어 구현` `[계획: 미구축]`
+52. ⏳ `CLI에서 AI가 제안한 '코드 변경사항(diff) 확인' 기능 구현` `[계획: 미구축]`
+53. ⏳ `CLI에서 n8n Webhook을 통한 '변경사항 승인/반려' 기능 구현` `[계획: 미구축]`
+54. ⏳ `package.json에 CLI 실행 스크립트 추가` `[계획: 미구축]`
+
+#### **Phase 3-2: n8n 인터랙티브 워크플로우 구성** `[계획: 미구축]`
+55. ⏳ `n8n Form 노드를 활용한 사용자 입력 수집 워크플로우 구성` `[계획: 미구축]`
+56. ⏳ `n8n에서 코드 변경사항(diff) 표시 및 승인/반려 워크플로우 구현` `[계획: 미구축]`
+57. ⏳ `n8n Manual Trigger 또는 Wait 노드를 활용한 사용자 승인 대기 로직 구현` `[계획: 미구축]`
+58. ⏳ `Cloudflare Access를 통한 외부 접근 보안 설정 (선택사항)` `[계획: 미구축]`
+
+#### **Phase 4-1: n8n 기반 자동 작업 분해 (Task Decomposition)** `[계획: 미구축]`
+59. ⏳ `n8n에서 AI 에이전트를 활용한 작업 분해 워크플로우 구성` `[계획: 미구축]`
+60. ⏳ `'분해 에이전트(Decomposition Agent)' 프롬프트 설계 및 n8n에 적용` `[계획: 미구축]`
+61. ⏳ `n8n에서 '복합 작업(Complex Task)' Webhook 엔드포인트 생성` `[계획: 미구축]`
+62. ⏳ `n8n Loop 노드를 활용하여 분해된 하위 작업을 순차적으로 실행하는 워크플로우 구현` `[계획: 미구축]`
+63. ⏳ `AI Agent Server에 '/decompose' 엔드포인트 추가 (작업 분해 로직)` `[계획: 미구축]`
+
+#### **Phase 4-2: n8n 워크플로우 기반 에이전트 협업 (Inter-Agent Collaboration)** `[계획: 미구축]`
+64. ⏳ `'코드 작성', '코드 리뷰', '테스트 작성' 등 에이전트 역할을 'src/types/roles.d.ts'에 정의` `[계획: 미구축]`
+65. ⏳ `n8n에서 멀티 에이전트 협업 워크플로우 구성 (순차 또는 병렬 실행)` `[계획: 미구축]`
+66. ⏳ `예시 워크플로우: Webhook → 작성 에이전트 → 리뷰 에이전트 → 테스트 에이전트 → 결과 반환` `[계획: 미구축]`
+67. ⏳ `n8n Error Trigger를 활용한 자동 피드백 루프 구현` `[계획: 미구축]`
+68. ⏳ `테스트 실패 시 작성 에이전트로 자동 재작업 요청 워크플로우 구현` `[계획: 미구축]`
 
 ---
 
-#### **Phase 5: 배포 및 외부 접근 설정 (Deployment & External Access)**
-43. `서버 프로세스 관리를 위한 'pm2' 설치 및 실행 스크립트 설정`
-44. `(방법 A: 개발/테스트용) 'ngrok'을 활용하여 로컬 서버를 외부로 노출`
-45. `(방법 B: 프로덕션용) Nginx 등 리버스 프록시 서버 설정 가이드 작성`
-46. `(방법 B 적용 시) Let's Encrypt를 이용한 무료 SSL/TLS 인증서 설정 가이드 작성`
+#### **Phase 5: 프로덕션 배포 및 최적화 (Production Deployment)** `[계획: 미구축]`
+69. ⏳ `Raspberry Pi 5에 PM2 설치 및 AI Agent Server 프로세스 관리 설정` `[계획: 미구축]`
+70. ⏳ `n8n 자동 시작 설정 (systemd 또는 Docker 자동 재시작)` `[계획: 미구축]`
+71. ⏳ `Cloudflare Zero Trust를 활용한 접근 제어 및 인증 설정 (선택사항)` `[계획: 미구축]`
+72. ⏳ `n8n 워크플로우 백업 및 버전 관리 설정` `[계획: 미구축]`
+73. ⏳ `로그 수집 및 모니터링 설정 (Prometheus/Grafana 또는 n8n 로그)` `[계획: 미구축]`
+74. ⏳ `시스템 성능 테스트 및 최적화` `[계획: 미구축]`
