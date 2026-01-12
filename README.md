@@ -12,20 +12,22 @@
 
 **현재 구축 상태 (2026-01-12 기준):**
 - ✅ Raspberry Pi 5 서버 구축 완료
-- ✅ n8n 설치 및 로컬 접속 완료
-- ⏳ Cloudflare 설정 대기 중
+- ✅ n8n Docker 컨테이너 배포 완료
+- ✅ Cloudflare Tunnel 구축 완료 (api.abyz-lab.work)
+- ✅ 외부 HTTPS 접속 가능 (https://api.abyz-lab.work)
 - ⏳ AI Agent Server 구축 대기 중
 
 ---
 
 ## 시스템 인프라 구성
 
-> **🆕 2026-01-12 업데이트:** n8n 기반 아키텍처로 전환 (계획)
+> **🆕 2026-01-12 업데이트:** n8n + Cloudflare Tunnel 기반 아키텍처 구축 완료
 >
-> **현재 상태:** Raspberry Pi 5 + n8n 로컬 환경 구축 완료
+> **현재 상태:** Raspberry Pi 5 + n8n + Cloudflare Tunnel 외부 접속 환경 완료
 
-- **워크플로우 엔진:** n8n (Raspberry Pi 5에서 운영) `[완료: 2026-01-12]`
-- **도메인 및 네트워크:** Cloudflare (DNS, Tunnel, SSL/TLS) `[계획: 미구축]`
+- **워크플로우 엔진:** n8n Docker 컨테이너 (Raspberry Pi 5, Port 5678) `[완료: 2026-01-12]`
+- **도메인 및 네트워크:** Cloudflare DNS + Tunnel (api.abyz-lab.work) `[완료: 2026-01-12]`
+- **외부 접속:** HTTPS 외부 접속 가능 (https://api.abyz-lab.work) `[완료: 2026-01-12]`
 - **AI 에이전트 서버:** Node.js/Express + TypeScript `[계획: 미구축]`
 - **통합 방식:** n8n이 내/외부 연결 매개체로 작동하여 AI 에이전트 및 외부 시스템 통합 `[계획: 미구축]`
 
@@ -39,14 +41,15 @@
 
 > **🔄 변경사항:** 기존 Express 서버 단독 구성에서 n8n + AI Agent Server 통합 구성으로 변경
 >
-> **진행 상황:** 1단계 일부 완료 (Raspberry Pi 5 + n8n 로컬 구축)
+> **진행 상황:** 1단계 인프라 완료 (Raspberry Pi 5 + n8n + Cloudflare Tunnel 구축)
 
 시스템의 기본 골격을 만들고, n8n과 단일 AI 에이전트를 연동하여 최소 기능의 워크플로우를 구현합니다.
 
-*   **1. n8n 워크플로우 엔진 구축** `[일부 완료]`
-    *   ✅ Raspberry Pi 5에 n8n 설치 및 설정 `[완료: 2026-01-12]`
-    *   ⏳ Cloudflare Tunnel을 통한 외부 접근 구성 `[계획: 미완료]`
-    *   ⏳ Cloudflare DNS 설정 및 도메인 연결 `[계획: 미완료]`
+*   **1. n8n 워크플로우 엔진 구축** `[완료: 2026-01-12]`
+    *   ✅ Raspberry Pi 5에 Docker 및 n8n 컨테이너 배포 `[완료: 2026-01-12]`
+    *   ✅ Cloudflare Tunnel 생성 및 ingress 설정 `[완료: 2026-01-12]`
+    *   ✅ Cloudflare DNS CNAME 설정 (api.abyz-lab.work) `[완료: 2026-01-12]`
+    *   ✅ HTTPS 외부 접속 확인 완료 `[완료: 2026-01-12]`
 
 *   **2. AI 에이전트 서버 구축** `[계획: 미구축]`
     *   ⏳ `Node.js (Express)` + `TypeScript` 기반 백엔드 서버 설정 `[계획: 미구축]`
