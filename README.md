@@ -4,9 +4,12 @@
 
 ## 📝 문서 변경 이력
 
-**2026-01-12: n8n + Cloudflare + Raspberry Pi 5 아키텍처로 전면 개편**
-- 기존 독립 서버 방식에서 n8n 중심 워크플로우 엔진으로 변경 (계획)
-- Cloudflare Tunnel 도입으로 포트 포워딩/DDNS 불필요 (계획)
+**2026-01-12: 하드웨어 개발 워크플로우 자동화 아키텍처로 확장** `[2026-01-12 업데이트]`
+- 기존 클라우드 AI 중심에서 로컬 LLM + IDE AI + 하드웨어 검증 통합 아키텍처로 변경 `[2026-01-12 추가]`
+- Claude Code, GitHub Copilot 구독 활성 (1년) `[2026-01-12 추가]`
+- Tailscale VPN 기반 네트워크 통합 (모든 장비 SSH 연결) `[2026-01-12 추가]`
+- Synology NAS의 Gitea + Redmine DevOps 통합 `[2026-01-12 추가]`
+- Cloudflare Tunnel 도입으로 포트 포워딩/DDNS 불필요
 - Raspberry Pi 5를 물리적 호스팅 서버로 결정
 - 모든 Phase에 n8n 워크플로우 통합 (계획)
 
@@ -15,21 +18,35 @@
 - ✅ n8n Docker 컨테이너 배포 완료
 - ✅ Cloudflare Tunnel 구축 완료 (api.abyz-lab.work)
 - ✅ 외부 HTTPS 접속 가능 (https://api.abyz-lab.work)
-- ⏳ AI Agent Server 구축 대기 중
+- ✅ Claude Code, GitHub Copilot 구독 활성 (1년) `[2026-01-12 추가]`
+- ✅ Tailscale VPN 네트워크 구축 완료 (모든 장비 SSH 연결) `[2026-01-12 추가]`
+- ✅ Synology NAS (Gitea + Redmine) 구축 완료 `[2026-01-12 추가]`
+- ⏳ ASUS GX10 + GLM 4.7B 설정 예정 `[2026-01-12 추가]`
+- ⏳ 하드웨어 검증 레이어 (Jetson, i.MX8MP+FPGA) 연동 예정 `[2026-01-12 추가]`
+- ⏳ 빌드 자동화 (Yocto, Vivado) 연동 예정 `[2026-01-12 추가]`
 
 ---
 
 ## 시스템 인프라 구성
 
-> **🆕 2026-01-12 업데이트:** n8n + Cloudflare Tunnel 기반 아키텍처 구축 완료
+> **🆕 2026-01-12 업데이트:** 하드웨어 개발 워크플로우 자동화 아키텍처
 >
-> **현재 상태:** Raspberry Pi 5 + n8n + Cloudflare Tunnel 외부 접속 환경 완료
+> **핵심 특징:** n8n + 로컬 LLM + IDE AI + 하드웨어 검증 + DevOps 통합
 
+**현재 구축 환경 (2026-01-12 기준):**
 - **워크플로우 엔진:** n8n Docker 컨테이너 (Raspberry Pi 5, Port 5678) `[완료: 2026-01-12]`
-- **도메인 및 네트워크:** Cloudflare DNS + Tunnel (api.abyz-lab.work) `[완료: 2026-01-12]`
-- **외부 접속:** HTTPS 외부 접속 가능 (https://api.abyz-lab.work) `[완료: 2026-01-12]`
-- **AI 에이전트 서버:** Node.js/Express + TypeScript `[계획: 미구축]`
-- **통합 방식:** n8n이 내/외부 연결 매개체로 작동하여 AI 에이전트 및 외부 시스템 통합 `[계획: 미구축]`
+- **외부 접속:** Cloudflare DNS + Tunnel (api.abyz-lab.work) `[완료: 2026-01-12]`
+- **네트워크:** Tailscale VPN (모든 장비 SSH 연결 가능) `[완료: 2026-01-12]` `[2026-01-12 추가]`
+- **DevOps:** Synology NAS (Gitea + Redmine) `[완료: 2026-01-12]` `[2026-01-12 추가]`
+
+**3계층 AI 에이전트 + DevOps 통합:** `[2026-01-12 추가]`
+1. **IDE 통합 AI:** Claude Code, GitHub Copilot (실시간 코딩) `[구독 활성: 2026-01-12]`
+2. **로컬 LLM:** ASUS GX10 GLM 4.7B (반복 작업, 로그 분석) `[계획: 미구축]`
+3. **클라우드 AI:** Claude/Gemini/OpenAI API (복잡한 작업 백업) `[계획: 미구축]`
+4. **Git 저장소:** Gitea (Synology NAS, 셀프 호스팅) `[완료: 기존 설치]`
+5. **이슈 관리:** Redmine (Synology NAS) `[완료: 기존 설치]`
+6. **하드웨어 검증:** Jetson Orin Nano, i.MX8MP+FPGA (SSH 원격 테스트) `[계획: 미구축]`
+7. **빌드 자동화:** Yocto Build PC, FPGA Dev PC (Vivado/Questa, SSH 원격 빌드) `[계획: 미구축]`
 
 ## 개발 로드맵 (Development Roadmap)
 

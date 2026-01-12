@@ -1,9 +1,14 @@
 ### **MCP 전체 구축 계획서 (Full Project Plan)**
 
-> **📝 2026-01-12 업데이트:** 74단계 상세 계획으로 확장 (기존 48단계)
-> **주요 추가:** Phase 0 인프라 구축 (7단계), n8n 통합 로직 전 Phase에 반영
+> **📝 2026-01-12 업데이트:** 하드웨어 개발 워크플로우 자동화를 위한 상세 계획 (93단계) `[2026-01-12 업데이트]`
+> **주요 추가:**
+> - Phase 0 확장: 11단계 → 26단계 (Tailscale, Gitea, Redmine, IDE AI 추가) `[2026-01-12 추가]`
+> - Phase 1.5 신규: DevOps 통합 및 IDE AI 연계 (9단계) `[2026-01-12 추가]`
+> - Phase 2.5 신규: 하드웨어 검증 및 빌드 자동화 (8단계) `[2026-01-12 추가]`
 
-#### **Phase 0: Raspberry Pi 5 & n8n 인프라 구축** 🆕 `[완료: 2026-01-12]`
+#### **Phase 0: 인프라 구축** 🆕 `[일부 완료: 2026-01-12]` `[2026-01-12 업데이트]`
+
+**0-1. 기존 완료 항목 (1-11단계)** `[완료: 2026-01-12]`
 1.  ✅ `Raspberry Pi 5 OS 설치 및 초기 설정 (Ubuntu/Raspberry Pi OS)` `[완료: 2026-01-12]`
 2.  ✅ `Docker 및 Docker Compose 설치` `[완료: 2026-01-12]`
 3.  ✅ `n8n Docker 컨테이너 배포 (docker-compose.yml)` `[완료: 2026-01-12]`
@@ -16,22 +21,41 @@
 10. ✅ `시스템 UDP 버퍼 튜닝 (sysctl.conf)` `[완료: 2026-01-12]`
 11. ✅ `n8n 외부 HTTPS 접속 테스트 확인 (https://api.abyz-lab.work)` `[완료: 2026-01-12]`
 
+**0-2. IDE AI 및 네트워크 환경** 🆕 `[2026-01-12 추가]`
+12. ✅ `Claude Code 구독 활성화 및 VSCode 확장 설치` `[완료: 2026-01-12]`
+13. ✅ `GitHub Copilot 구독 활성화 및 IDE 플러그인 설치` `[완료: 2026-01-12]`
+14. ✅ `모든 장비에 Tailscale VPN 설치 및 SSH 연결 확인` `[완료: 기존 설치]`
+15. ✅ `Synology NAS의 Gitea 접속 확인 (HTTP API 테스트)` `[완료: 기존 설치]`
+16. ✅ `Synology NAS의 Redmine 접속 확인 (HTTP API 테스트)` `[완료: 기존 설치]`
+
+**0-3. 로컬 LLM 및 하드웨어 설정** 🆕 `[2026-01-12 추가]`
+17. ⏳ `ASUS GX10에 GLM 4.7B 모델 설치` `[계획: 미구축]`
+18. ⏳ `ASUS GX10에 추론 API 서버 구성 (Flask/FastAPI)` `[계획: 미구축]`
+19. ⏳ `n8n에서 ASUS GX10 SSH 연결 테스트 (Execute Command 노드)` `[계획: 미구축]`
+20. ⏳ `Jetson Orin Nano 초기 설정 (JetPack 설치, SSH 접속)` `[계획: 미구축]`
+21. ⏳ `i.MX8MP + FPGA EVKIT 초기 설정 및 SSH 접속` `[계획: 미구축]`
+22. ⏳ `Yocto Build PC 환경 구성 (Ubuntu, Yocto 의존성)` `[계획: 미구축]`
+23. ⏳ `FPGA Dev PC 환경 구성 (Vivado, ModelSim/Questa)` `[계획: 미구축]`
+24. ⏳ `n8n에서 각 장비로 SSH 명령 실행 테스트 (Execute Command 노드)` `[계획: 미구축]`
+25. ⏳ `n8n에서 Gitea API 호출 테스트 (브랜치 생성, 커밋, PR)` `[계획: 미구축]`
+26. ⏳ `n8n에서 Redmine API 호출 테스트 (이슈 생성, 상태 업데이트)` `[계획: 미구축]`
+
 #### **Phase 1-1: AI Agent Server 환경 구축** `[계획: 미구축]`
-12. ⏳ `Raspberry Pi 5에 Node.js 설치 (LTS 버전)` `[계획: 미구축]`
-13. ⏳ `Node.js 프로젝트 초기화: 'package.json' 파일 생성` `[계획: 미구축]`
-14. ⏳ `TypeScript 및 Node.js 타입 라이브러리 설치` `[계획: 미구축]`
-15. ⏳ `TypeScript 컴파일러 설정 파일 'tsconfig.json' 생성` `[계획: 미구축]`
-16. ⏳ `Express 웹 프레임워크 및 타입 라이브러리 설치` `[계획: 미구축]`
-17. ⏳ `소스 코드 관리를 위한 'src' 디렉토리 생성` `[계획: 미구축]`
-18. ⏳ `'src/index.ts' 파일에 기본 Express 서버 코드 작성 (n8n과 통신 가능하도록)` `[계획: 미구축]`
-19. ⏳ `'package.json'에 서버 빌드 및 실행 스크립트 추가` `[계획: 미구축]`
+27. ⏳ `Raspberry Pi 5에 Node.js 설치 (LTS 버전)` `[계획: 미구축]`
+28. ⏳ `Node.js 프로젝트 초기화: 'package.json' 파일 생성` `[계획: 미구축]`
+29. ⏳ `TypeScript 및 Node.js 타입 라이브러리 설치` `[계획: 미구축]`
+30. ⏳ `TypeScript 컴파일러 설정 파일 'tsconfig.json' 생성` `[계획: 미구축]`
+31. ⏳ `Express 웹 프레임워크 및 타입 라이브러리 설치` `[계획: 미구축]`
+32. ⏳ `소스 코드 관리를 위한 'src' 디렉토리 생성` `[계획: 미구축]`
+33. ⏳ `'src/index.ts' 파일에 기본 Express 서버 코드 작성 (n8n과 통신 가능하도록)` `[계획: 미구축]`
+34. ⏳ `'package.json'에 서버 빌드 및 실행 스크립트 추가` `[계획: 미구축]`
 
 #### **Phase 1-2: n8n과 AI Agent Server 통합** `[계획: 미구축]`
-20. ⏳ `n8n에서 Webhook 노드 생성 (사용자 요청 수신용)` `[계획: 미구축]`
-21. ⏳ `n8n에서 HTTP Request 노드 생성 (AI Agent Server 호출용)` `[계획: 미구축]`
-22. ⏳ `AI Agent Server에 '/webhook' 엔드포인트 구현 (n8n 요청 수신)` `[계획: 미구축]`
-23. ⏳ `n8n에서 AI Agent Server로 작업 요청 전달 워크플로우 구성` `[계획: 미구축]`
-24. ⏳ `AI Agent Server에서 n8n으로 결과 반환 로직 구현` `[계획: 미구축]`
+35. ⏳ `n8n에서 Webhook 노드 생성 (사용자 요청 수신용)` `[계획: 미구축]`
+36. ⏳ `n8n에서 HTTP Request 노드 생성 (AI Agent Server 호출용)` `[계획: 미구축]`
+37. ⏳ `AI Agent Server에 '/webhook' 엔드포인트 구현 (n8n 요청 수신)` `[계획: 미구축]`
+38. ⏳ `n8n에서 AI Agent Server로 작업 요청 전달 워크플로우 구성` `[계획: 미구축]`
+39. ⏳ `AI Agent Server에서 n8n으로 결과 반환 로직 구현` `[계획: 미구축]`
 
 #### **Phase 1-3: 핵심 API 및 서비스 구조 설계** `[계획: 미구축]`
 25. ⏳ `API 요청을 처리할 'src/controllers' 디렉토리 생성` `[계획: 미구축]`

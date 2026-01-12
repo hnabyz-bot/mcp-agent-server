@@ -1,25 +1,106 @@
 ### **MCP-Agent-Server 시스템 아키텍처 (논리적)**
 
-> **📝 2026-01-12 업데이트:** n8n을 중앙 오케스트레이터로 하는 아키텍처로 전면 재설계
-> **주요 변경:** ~~Nginx + 포트 포워딩~~ → Cloudflare Tunnel, ~~독립 서버~~ → n8n + AI Agent Server
+> **📝 2026-01-12 업데이트:** 하드웨어 개발 워크플로우 자동화 아키텍처로 전면 재설계 `[2026-01-12 업데이트]`
+> **주요 변경:**
+> - ~~클라우드 AI 중심~~ → 로컬 LLM + IDE AI + 하드웨어 검증 통합 `[2026-01-12 추가]`
+> - ~~Nginx + 포트 포워딩~~ → Cloudflare Tunnel
+> - ~~독립 서버~~ → n8n + AI Agent Server
+> - **신규 추가:** Gitea + Redmine DevOps 통합, Tailscale VPN 네트워크 `[2026-01-12 추가]`
 
 ```mermaid
 graph TD
-    A["User Interface (CLI/Web)"] --> B["Cloudflare (DNS/Tunnel)"];
-    B --> C["n8n Workflow Engine<br/>(Raspberry Pi 5)"];
-    C --> D["AI Agent Server<br/>(Node.js/Express)"];
-    C --> E["Agent Router<br/>(n8n Switch/IF)"];
-    E --> F["AI Agent Adapters"];
-    F --> G1["Claude API"];
-    F --> G2["Gemini API"];
-    F --> G3["Perplexity API"];
-    F --> G4["OpenAI API"];
-    D --> H["File Service"];
-    H --> I["File System Workspace"];
-    C --> J["Task Store<br/>(n8n Database)"];
+    subgraph "외부 (External)"
+        User["👨‍💻 개발자<br/>(외부 PC/모바일)"]
+        CloudflareEdge["☁️ Cloudflare<br/>DNS + Tunnel + SSL"]
+    end
+
+    subgraph "내부 네트워크 (LAN + Tailscale VPN)"
+        subgraph "Raspberry Pi 5 (n8n Hub)"
+            Cloudflared["🔑 cloudflared"]
+            N8N["⚙️ n8n<br/>Workflow Engine"]
+        end
+
+        subgraph "Synology NAS"
+            Gitea["📦 Gitea<br/>(Git Repository)"]
+            Redmine["📋 Redmine<br/>(Issue Tracker)"]
+        end
+
+        subgraph "로컬 AI 서버 (ASUS GX10)"
+            GLM["🧠 GLM 4.7B<br/>(Local LLM)"]
+        end
+
+        subgraph "하드웨어 검증 레이어"
+            Jetson["🤖 Jetson Orin Nano<br/>(AI Inference)"]
+            IMX8MP["🔧 i.MX8MP + FPGA<br/>(Hardware Test)"]
+        end
+
+        subgraph "빌드 자동화 레이어"
+            YoctoPC["🏗️ Yocto Build PC<br/>(Ubuntu)"]
+            FPGAPC["💻 FPGA Dev PC<br/>(Vivado/Questa)"]
+        end
+    end
+
+    subgraph "IDE 통합 AI (개발자 로컬)"
+        VSCode["VSCode +<br/>Claude Code"]
+        Copilot["GitHub Copilot"]
+    end
+
+    subgraph "클라우드 AI (백업)"
+        CloudAI["☁️ Claude/Gemini/OpenAI API"]
+    end
+
+    User -->|"1. 웹폼/CLI 명령"| CloudflareEdge
+    CloudflareEdge -->|"2. Tunnel"| Cloudflared
+    Cloudflared -->|"3. Webhook"| N8N
+
+    N8N <-->|"SSH (Tailscale)"| GLM
+    N8N <-->|"SSH (Tailscale)"| Jetson
+    N8N <-->|"SSH (Tailscale)"| IMX8MP
+    N8N <-->|"SSH (Tailscale)"| YoctoPC
+    N8N <-->|"SSH (Tailscale)"| FPGAPC
+    N8N <-->|"HTTP API"| Gitea
+    N8N <-->|"HTTP API"| Redmine
+
+    N8N -->|"백업 호출"| CloudAI
+
+    VSCode -.->|"코드 작성"| Gitea
+    Copilot -.->|"코드 제안"| VSCode
+    VSCode -->|"Webhook"| N8N
 ```
 
-### **흐름 설명 (논리적)**
+### **통합 개발 워크플로우 (Unified Development Workflow)** `[2026-01-12 추가]`
+
+1.  **작업 시작 (Task Initiation)** `[2026-01-12 추가]`
+    - 개발자가 외부 웹폼 또는 CLI를 통해 작업 지시 (예: "신규 기능 개발", "디버깅 요청")
+    - Cloudflare를 통해 n8n Webhook 호출 ✅ `[완료: 2026-01-12 - Cloudflare Tunnel 구축]`
+
+2.  **작업 등록 (Task Registration)** `[2026-01-12 추가]`
+    - ⏳ n8n이 Redmine API를 호출하여 이슈 자동 생성 `[계획: 미구축]`
+    - ⏳ Redmine 이슈 번호를 작업 ID로 사용 `[계획: 미구축]`
+
+3.  **코드 작성 (Code Generation)** `[2026-01-12 추가]`
+    - **Option A:** 개발자가 VSCode에서 Claude Code/Copilot으로 직접 작성 ✅ `[구독 활성: 2026-01-12]`
+    - **Option B:** ⏳ n8n이 ASUS GX10의 GLM 4.7B를 SSH로 호출하여 자동 코드 생성 `[계획: 미구축]`
+
+4.  **코드 검증 (Code Verification)** `[2026-01-12 추가]`
+    - ⏳ Jetson Orin Nano: AI 모델 추론 성능 테스트 (SSH 원격 실행) `[계획: 미구축]`
+    - ⏳ i.MX8MP + FPGA: 하드웨어 구현 검증 (SSH 원격 실행) `[계획: 미구축]`
+
+5.  **빌드 자동화 (Build Automation)** `[2026-01-12 추가]`
+    - ⏳ Yocto PC: n8n이 SSH로 Yocto 빌드 스크립트 실행 `[계획: 미구축]`
+    - ⏳ FPGA Dev PC: n8n이 SSH로 Vivado 합성/Questa 시뮬레이션 실행 `[계획: 미구축]`
+
+6.  **Git 통합 (Git Integration)** `[2026-01-12 추가]`
+    - ⏳ n8n이 Gitea API를 통해 브랜치 생성, 커밋, Pull Request 자동 생성 `[계획: 미구축]`
+    - ⏳ Redmine 이슈와 Gitea PR을 자동 연결 `[계획: 미구축]`
+    - ✅ Gitea 접속 가능 `[완료: 기존 설치]`
+
+7.  **피드백 루프 (Feedback Loop)** `[2026-01-12 추가]`
+    - ⏳ 빌드 실패 시 n8n Error Trigger 발동 `[계획: 미구축]`
+    - ⏳ GLM 4.7B가 에러 로그 분석 후 수정 제안 `[계획: 미구축]`
+    - ⏳ 자동 재빌드 또는 개발자에게 알림 `[계획: 미구축]`
+
+### **흐름 설명 (기존 논리적 구조)**
 
 1.  **사용자 (User):** `CLI`, `웹 UI`, 또는 외부 시스템을 통해 개발 목표나 작업을 지시합니다.
 2.  ✅ **Cloudflare:** DNS 및 Tunnel (abyz-n8n)을 통해 외부 요청을 Raspberry Pi 5로 안전하게 라우팅합니다. `[완료: 2026-01-12]`
@@ -29,10 +110,10 @@ graph TD
     *   ⏳ AI 에이전트 호출 및 결과 수집 `[계획: 미구축]`
     *   ⏳ 작업 상태 추적 및 저장 `[계획: 미구축]`
 4.  ⏳ **Agent Router (n8n):** n8n의 Switch/IF 노드를 통해 작업 유형에 따라 최적의 AI 에이전트를 선택합니다. `[계획: 미구축]`
-5.  ⏳ **AI Agent Server:** Node.js/Express 기반 서버로 각 AI 모델의 어댑터를 제공합니다. `[계획: 미구축]`
-6.  ⏳ **AI Agent Adapters:** 각 AI 모델(Claude, Gemini, Perplexity, OpenAI)의 API와 통신합니다. `[계획: 미구축]`
-7.  ⏳ **File Service:** 워크스페이스의 파일을 읽고, 쓰고, 수정하는 기능을 제공합니다. `[계획: 미구축]`
-8.  ⏳ **Task Store:** n8n 내부 데이터베이스 또는 외부 DB를 통해 작업 상태를 영구 저장합니다. `[계획: 미구축]`
+5.  ⏳ **로컬 LLM (GLM 4.7B):** ASUS GX10에서 실행되며, n8n이 SSH를 통해 반복 작업 자동화 요청을 전달합니다. `[계획: 미구축]` `[2026-01-12 추가]`
+6.  ⏳ **클라우드 AI API:** 복잡한 작업에 대한 백업으로 Claude, Gemini, OpenAI API를 호출합니다. `[계획: 미구축]`
+7.  ✅ **Gitea:** Synology NAS에서 실행되는 셀프 호스팅 Git 저장소입니다. `[완료: 기존 설치]` `[2026-01-12 추가]`
+8.  ✅ **Redmine:** Synology NAS에서 실행되는 이슈 추적 시스템입니다. `[완료: 기존 설치]` `[2026-01-12 추가]`
 
 ---
 
