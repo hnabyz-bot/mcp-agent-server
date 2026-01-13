@@ -2,6 +2,24 @@
 
 `mcp-agent-server`는 Claude, Copilot, Gemini, Perplexity 등 여러 AI 모델을 개발 에이전트로 활용하여, 복잡한 소프트웨어 개발 과제를 협업을 통해 해결하는 것을 목표로 하는 프로젝트입니다.
 
+---
+
+## 📚 프로젝트 문서 구조 `[2026-01-13 추가]`
+
+| 문서 | 설명 | 용도 |
+|:---|:---|:---|
+| **[README.md](README.md)** | 프로젝트 개요 및 시작 가이드 | 프로젝트 진입점 |
+| **[ARCHITECTURE.md](ARCHITECTURE.md)** | 시스템 아키텍처 및 설계 | 시스템 설계 이해 |
+| **[PLAN.md](PLAN.md)** | 108단계 구축 계획 | 실행 계획 및 진행 추적 |
+| **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** | 배포, 네트워크, 구축 가이드 | 실제 구축 방법 |
+| **[DEVOPS_INTEGRATION.md](DEVOPS_INTEGRATION.md)** | Gitea/Redmine API 연동 가이드 | DevOps 자동화 |
+
+**문서 통합 이력 (2026-01-13):**
+- ~~NETWORK_TOPOLOGY.md~~ → DEPLOYMENT_GUIDE.md에 통합
+- ~~n8n_cloudflare_tunnel_setup.md~~ → DEPLOYMENT_GUIDE.md에 통합
+- ~~PROJECT_ANALYSIS_REPORT.md~~ → 삭제 (일회성 분석)
+- ~~claude-review_report.md~~ → 삭제 (중복 분석)
+
 ## 📝 문서 변경 이력
 
 **2026-01-12: 하드웨어 개발 워크플로우 자동화 아키텍처로 확장** `[2026-01-12 업데이트]`
