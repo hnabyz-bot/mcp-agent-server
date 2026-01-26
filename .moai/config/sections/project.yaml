@@ -1,0 +1,9 @@
+project:
+  name: mcp-agent-server
+  description: ''
+  type: ''
+  locale: '{{LOCALE}}'
+  created_at: '2026-01-26T19:11:35.767140Z'
+  initialized: 'true'
+github:
+  profile_name: hnabyz-bot

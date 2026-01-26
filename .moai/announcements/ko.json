@@ -1,12 +1,4 @@
 {
-  "_meta": {
-    "description": "User-specific Claude Code settings (gitignored - never commit)",
-    "created_at": "2026-01-26T19:11:35.772021Z",
-    "note": "Edit this file to customize your local development environment"
-  },
-  "enabledMcpjsonServers": [
-    "context7"
-  ],
   "companyAnnouncements": [
     "🗿 MoAI-ADK: 48개 Skills와 Context7 통합 SPEC-First DDD",
     "⚡ /moai:alfred: 원스탑 Plan→Run→Sync 자동화 (지능형 라우팅)",

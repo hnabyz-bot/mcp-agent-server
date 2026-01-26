@@ -1,0 +1,233 @@
+{
+  "name": "Issue Submission to Gitea and Redmine",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "issue-submission",
+        "responseMode": "onLastNode",
+        "options": {}
+      },
+      "id": "webhook-node",
+      "name": "Form Submission Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "issue-submission-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validation function\nfunction validateInput(data) {\n  const errors = [];\n\n  // Required fields\n  if (!data.title || typeof data.title !== 'string') {\n    errors.push('Title is required and must be a string');\n  } else if (data.title.length > 255) {\n    errors.push('Title must not exceed 255 characters');\n  }\n\n  if (!data.description || typeof data.description !== 'string') {\n    errors.push('Description is required and must be a string');\n  }\n\n  // Priority validation\n  const validPriorities = ['low', 'medium', 'high', 'critical'];\n  if (data.priority && !validPriorities.includes(data.priority)) {\n    errors.push(`Priority must be one of: ${validPriorities.join(', ')}`);\n  }\n\n  // Progress validation\n  if (data.progress !== undefined) {\n    const progress = Number(data.progress);\n    if (isNaN(progress) || progress < 0 || progress > 100) {\n      errors.push('Progress must be a number between 0 and 100');\n    }\n  }\n\n  // Estimated time validation\n  if (data.estimated_time !== undefined) {\n    const time = Number(data.estimated_time);\n    if (isNaN(time) || time < 0) {\n      errors.push('Estimated time must be a positive number');\n    }\n  }\n\n  // Labels validation\n  if (data.labels && !Array.isArray(data.labels)) {\n    errors.push('Labels must be an array');\n  }\n\n  // Related issues validation\n  if (data.related_issues && !Array.isArray(data.related_issues)) {\n    errors.push('Related issues must be an array');\n  }\n\n  // Attachments validation\n  if (data.attachments) {\n    if (!Array.isArray(data.attachments)) {\n      errors.push('Attachments must be an array');\n    } else {\n      data.attachments.forEach((att, index) => {\n        if (!att.filename) {\n          errors.push(`Attachment ${index}: filename is required`);\n        }\n        if (!att.data) {\n          errors.push(`Attachment ${index}: data is required`);\n        }\n      });\n    }\n  }\n\n  return errors;\n}\n\n// Main execution\nconst inputData = $input.all()[0].json;\nconst errors = validateInput(inputData);\n\nif (errors.length > 0) {\n  // Validation failed - return error response\n  return [{\n    json: {\n      valid: false,\n      errors: errors,\n      timestamp: new Date().toISOString()\n    }\n  }];\n}\n\n// Validation successful - add metadata\nreturn [{\n  json: {\n    valid: true,\n    data: inputData,\n    timestamp: new Date().toISOString(),\n    validation_passed: true\n  }\n}];"
+      },
+      "id": "validation-node",
+      "name": "Validate Input Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "fieldName": "validation_passed",
+              "value": true
+            }
+          ]
+        }
+      },
+      "id": "switch-node",
+      "name": "Validation Check",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.all()[0].json;\nconst attachments = inputData.data.attachments || [];\nconst processedAttachments = [];\n\n// Helper function to decode base64\nfunction decodeBase64(base64String) {\n  try {\n    return Buffer.from(base64String, 'base64');\n  } catch (error) {\n    throw new Error(`Failed to decode base64: ${error.message}`);\n  }\n}\n\n// Process each attachment\nfor (let i = 0; i < attachments.length; i++) {\n  const attachment = attachments[i];\n\n  try {\n    // Decode base64 data\n    const fileBuffer = decodeBase64(attachment.data);\n\n    // Create attachment object\n    const processed = {\n      filename: attachment.filename,\n      content_type: attachment.content_type || 'application/octet-stream',\n      size: fileBuffer.length,\n      data: attachment.data, // Keep base64 for API upload\n      index: i\n    };\n\n    processedAttachments.push(processed);\n  } catch (error) {\n    // Log error but continue processing other attachments\n    console.error(`Error processing attachment ${i}:`, error.message);\n    processedAttachments.push({\n      filename: attachment.filename,\n      error: error.message,\n      index: i,\n      failed: true\n    });\n  }\n}\n\n// Return processed data\nreturn [{\n  json: {\n    ...inputData,\n    processed_attachments: processedAttachments,\n    attachment_count: processedAttachments.length,\n    failed_attachments: processedAttachments.filter(a => a.failed).length\n  }\n}];"
+      },
+      "id": "attachment-node",
+      "name": "Process Attachments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GITEA_URL }}/api/v1/repos/{{ $env.GITEA_OWNER }}/{{ $env.GITEA_REPO }}/issues",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "token {{ $env.GITEA_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.data.title }}"
+            },
+            {
+              "name": "body",
+              "value": "={{ $json.data.description }}\n\n---\n*Created via n8n workflow*"
+            },
+            {
+              "name": "assignees",
+              "value": "={{ $json.data.assignee ? [$json.data.assignee] : [] }}"
+            },
+            {
+              "name": "labels",
+              "value": "={{ $json.data.labels || [] }}"
+            },
+            {
+              "name": "milestone",
+              "value": "={{ $json.data.milestone }}"
+            },
+            {
+              "name": "closed",
+              "value": "false"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "gitea-node",
+      "name": "Create Gitea Issue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1050, 200],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.REDMINE_URL }}/issues.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Redmine-API-Key",
+              "value": "{{ $env.REDMINE_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"issue\": {\n    \"project_id\": Number($env.REDMINE_PROJECT_ID),\n    \"tracker_id\": Number($env.REDMINE_TRACKER_ID),\n    \"subject\": $json.data.title,\n    \"description\": $json.data.description + \"\\n\\n---\\n*Created via n8n workflow*\",\n    \"priority_id\": $json.data.priority === 'critical' ? 6 : $json.data.priority === 'high' ? 5 : $json.data.priority === 'medium' ? 4 : 3,\n    \"assigned_to_id\": $json.data.assignee,\n    \"estimated_hours\": $json.data.estimated_time,\n    \"done_ratio\": $json.data.progress || 0\n  }\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "redmine-node",
+      "name": "Create Redmine Issue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1050, 400],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collect results from both systems\nconst giteaResult = $('Create Gitea Issue').all()[0]?.json;\nconst redmineResult = $('Create Redmine Issue').all()[0]?.json;\n\nconst errors = [];\nconst successes = [];\n\n// Check Gitea result\nif (!giteaResult || giteaResult.error) {\n  errors.push({\n    system: 'gitea',\n    error: giteaResult?.error || 'Failed to create issue'\n  });\n} else {\n  successes.push({\n    system: 'gitea',\n    issue_url: giteaResult.html_url,\n    issue_number: giteaResult.number\n  });\n}\n\n// Check Redmine result\nif (!redmineResult || redmineResult.error) {\n  errors.push({\n    system: 'redmine',\n    error: redmineResult?.error || 'Failed to create issue'\n  });\n} else {\n  successes.push({\n    system: 'redmine',\n    issue_url: `${$env.REDMINE_URL}/issues/${redmineResult.issue.id}`,\n    issue_id: redmineResult.issue.id\n  });\n}\n\n// Determine overall success\nconst successCount = successes.length;\nconst totalCount = 2;\n\nconst result = {\n  success: successCount > 0,\n  partial_success: successCount === 1,\n  complete_success: successCount === totalCount,\n  successes: successes,\n  errors: errors,\n  timestamp: new Date().toISOString(),\n  retry_count: $execution.retryCount || 0\n};\n\nreturn [{ json: result }];"
+      },
+      "id": "error-handler-node",
+      "name": "Error Handler & Retry Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const errorResult = $('Validation Check').all()[0]?.json;\nconst errorHandlerResult = $('Error Handler & Retry Logic').all()[0]?.json;\n\n// Handle validation errors\nif (errorResult && !errorResult.valid) {\n  return [{\n    json: {\n      success: false,\n      message: 'Validation failed',\n      errors: errorResult.errors,\n      timestamp: errorResult.timestamp\n    }\n  }];\n}\n\n// Handle workflow results\nconst result = errorHandlerResult;\n\n// Build response message\nlet message = '';\nif (result.complete_success) {\n  message = 'Issue created successfully in both Gitea and Redmine';\n} else if (result.partial_success) {\n  message = `Issue created in ${result.successes[0].system} but failed in ${result.errors[0].system}`;\n} else {\n  message = 'Failed to create issue in both systems';\n}\n\n// Build final response\nconst response = {\n  success: result.success,\n  message: message,\n  gitea_issue_url: result.successes.find(s => s.system === 'gitea')?.issue_url || null,\n  redmine_issue_url: result.successes.find(s => s.system === 'redmine')?.issue_url || null,\n  errors: result.errors.map(e => `${e.system}: ${e.error}`),\n  timestamp: result.timestamp,\n  retry_count: result.retry_count\n};\n\nreturn [{ json: response }];"
+      },
+      "id": "response-builder-node",
+      "name": "Build Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseCode": "={{ $json.success ? 200 : 400 }}"
+        }
+      },
+      "id": "response-node",
+      "name": "Return Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1650, 300]
+    }
+  ],
+  "connections": {
+    "Form Submission Webhook": {
+      "main": [[{"node": "Validate Input Data"}]]
+    },
+    "Validate Input Data": {
+      "main": [[{"node": "Validation Check"}]]
+    },
+    "Validation Check": {
+      "main": [
+        [{"node": "Process Attachments"}],
+        [{"node": "Build Response"}]
+      ]
+    },
+    "Process Attachments": {
+      "main": [[{"node": "Create Gitea Issue"}, {"node": "Create Redmine Issue"}]]
+    },
+    "Create Gitea Issue": {
+      "main": [[{"node": "Error Handler & Retry Logic"}]]
+    },
+    "Create Redmine Issue": {
+      "main": [[{"node": "Error Handler & Retry Logic"}]]
+    },
+    "Error Handler & Retry Logic": {
+      "main": [[{"node": "Build Response"}]]
+    },
+    "Build Response": {
+      "main": [[{"node": "Return Response"}]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-01-26T00:00:00.000Z",
+  "versionId": "1.0.0"
+}

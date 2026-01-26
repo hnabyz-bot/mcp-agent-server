@@ -1,0 +1,70 @@
+{
+  "documentation": "Cloudflare DNS configuration templates for forms.abyz-lab.work subdomain",
+  "version": "1.0.0",
+  "last_updated": "2026-01-26",
+  "zone": "abyz-lab.work",
+
+  "dns_records": [
+    {
+      "type": "CNAME",
+      "name": "forms",
+      "content": "[TUNNEL_ID].cfargotunnel.com",
+      "ttl": 1,
+      "proxied": true,
+      "priority": null,
+      "comment": "Forms subdomain - Cloudflare Tunnel (Orange Cloud for proxy)",
+      "tags": ["production", "tunnel", "forms"]
+    }
+  ],
+
+  "recommended_settings": {
+    "proxy_status": {
+      "orange_cloud": {
+        "description": "Proxied through Cloudflare - Recommended for security and performance",
+        "features": ["DDoS protection", "SSL/TLS termination", "Caching", "Web Application Firewall"],
+        "use_case": "Production deployment with Cloudflare Tunnel"
+      },
+      "dns_only": {
+        "description": "DNS Only - Grey cloud icon",
+        "features": ["Direct DNS resolution", "No Cloudflare proxy"],
+        "use_case": "Direct connections without proxy (not recommended for tunnels)"
+      }
+    },
+    "ttl_recommendations": {
+      "auto": "Recommended - Cloudflare automatically optimizes TTL",
+      "300": "5 minutes - Fast propagation, frequent updates",
+      "3600": "1 hour - Standard TTL",
+      "86400": "24 hours - Stable records, infrequent changes"
+    }
+  },
+
+  "additional_records": {
+    "optional": [
+      {
+        "type": "TXT",
+        "name": "_forms.abyz-lab.work",
+        "content": "v=spf1 include:_spf.google.com ~all",
+        "description": "SPF record for email (if email sending needed)"
+      },
+      {
+        "type": "CNAME",
+        "name": "www.forms",
+        "content": "forms.abyz-lab.work",
+        "description": "Optional www subdomain redirect"
+      }
+    ]
+  },
+
+  "validation_checks": [
+    "DNS propagation completed (use dig or nslookup)",
+    "SSL certificate provisioned by Cloudflare",
+    "Tunnel routing configured in cloudflared",
+    "Health check endpoint accessible"
+  ],
+
+  "deployment_commands": {
+    "cloudflare_api": "Use Cloudflare API or Dashboard for DNS configuration",
+    "verification": "dig forms.abyz-lab.work",
+    "ssl_check": "curl -Iv https://forms.abyz-lab.work"
+  }
+}

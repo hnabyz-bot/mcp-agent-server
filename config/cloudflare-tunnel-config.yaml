@@ -1,0 +1,68 @@
+# Cloudflare Tunnel Configuration for Multiple Services
+# File: config/cloudflare-tunnel-config.yaml
+# Location on Raspberry Pi: ~/.cloudflared/config.yml
+
+# Tunnel Configuration
+tunnel: <TUNNEL_ID>
+credentials-file: /home/pi/.cloudflared/<TUNNEL_ID>.json
+
+# Ingress Rules - Priority top to bottom
+ingress:
+  # Priority 1: Forms subdomain (NEW SERVICE)
+  - hostname: forms.abyz-lab.work
+    service: http://localhost:8080
+    originRequest:
+      noTLSVerify: true
+      access:
+        required: false
+      http2Origin: false
+
+  # Priority 2: API subdomain (EXISTING n8n SERVICE)
+  - hostname: api.abyz-lab.work
+    service: http://localhost:5678
+    originRequest:
+      noTLSVerify: true
+      access:
+        required: false
+      http2Origin: false
+
+  # Priority 3: Catch-all route (404 handler)
+  - service: http_status:404
+
+# Metrics Configuration (Optional)
+metrics: 0.0.0.0:20000
+
+# Logging Configuration
+loglevel: info
+transport-loglevel: info
+
+# Quick Reconnects (Recommended for production)
+no-autoupdate: false
+
+# Origin CA Certificate (Recommended)
+originCert: /home/pi/.cloudflared/<TUNNEL_ID>.pem
+
+# Additional Options
+# ---
+# For production, consider these additional settings:
+
+# SSH Access (Optional - for remote management)
+# ingress:
+#   - hostname: ssh.abyz-lab.work
+#     service: ssh://localhost:22
+
+# WebSocket support (if needed)
+#   - hostname: forms.abyz-lab.work
+#     service: http://localhost:8080
+#     originRequest:
+#       noTLSVerify: true
+#       http2Origin: false
+
+# IP Rules (restrict access)
+#   - hostname: forms.abyz-lab.work
+#     service: http://localhost:8080
+#     originRequest:
+#       ipRules:
+#         - prefix: "0.0.0.0/0"
+#           ports: [8080]
+#           allow: true
