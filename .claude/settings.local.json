@@ -1,8 +1,9 @@
 {
-  "_meta": {
-    "description": "User-specific Claude Code settings (gitignored - never commit)",
-    "created_at": "2026-01-26T19:11:35.772021Z",
-    "note": "Edit this file to customize your local development environment"
+  "permissions": {
+    "allow": [
+      "Bash(ssh:*)",
+      "Bash(scp:*)"
+    ]
   },
   "enabledMcpjsonServers": [
     "context7"
@@ -22,5 +23,10 @@
     "💡 하이브리드 모드: Plan은 Claude (Opus/Sonnet), Run/Sync는 GLM으로 비용 절감",
     "💡 병렬 개발: 터미널1은 Claude, 터미널2+는 'moai glm && claude'로 병렬 실행",
     "🏆 moai rank: Claude 토큰 사용량 추적 및 rank.mo.ai.kr 리더보드 경쟁"
-  ]
+  ],
+  "_meta": {
+    "description": "User-specific Claude Code settings (gitignored - never commit)",
+    "created_at": "2026-01-26T19:11:35.772021Z",
+    "note": "Edit this file to customize your local development environment"
+  }
 }

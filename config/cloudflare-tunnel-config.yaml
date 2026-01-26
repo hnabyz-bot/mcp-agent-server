@@ -3,8 +3,8 @@
 # Location on Raspberry Pi: ~/.cloudflared/config.yml
 
 # Tunnel Configuration
-tunnel: <TUNNEL_ID>
-credentials-file: /home/pi/.cloudflared/<TUNNEL_ID>.json
+tunnel: 7be6cf9a-dc35-4add-815c-da4810d9e0c5
+credentials-file: /home/raspi/.cloudflared/7be6cf9a-dc35-4add-815c-da4810d9e0c5.json
 
 # Ingress Rules - Priority top to bottom
 ingress:
@@ -40,7 +40,7 @@ transport-loglevel: info
 no-autoupdate: false
 
 # Origin CA Certificate (Recommended)
-originCert: /home/pi/.cloudflared/<TUNNEL_ID>.pem
+originCert: /home/raspi/.cloudflared/7be6cf9a-dc35-4add-815c-da4810d9e0c5.pem
 
 # Additional Options
 # ---
