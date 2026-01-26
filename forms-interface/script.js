@@ -14,7 +14,7 @@
 // ========================================
 
 const CONFIG = {
-    webhookUrl: 'https://api.abyz-lab.work/webhook/issue-submit',
+    webhookUrl: 'https://api.abyz-lab.work/webhook/issue-submission',
     maxFileSize: 10 * 1024 * 1024, // 10MB in bytes
     maxFiles: 10,
     allowedFileTypes: [
