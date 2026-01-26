@@ -31,11 +31,13 @@
 - Raspberry Pi 5를 물리적 호스팅 서버로 결정
 - 모든 Phase에 n8n 워크플로우 통합 (계획)
 
-**현재 구축 상태 (2026-01-12 기준):**
+**현재 구축 상태 (2026-01-26 기준):**
 - ✅ Raspberry Pi 5 서버 구축 완료
 - ✅ n8n Docker 컨테이너 배포 완료
-- ✅ Cloudflare Tunnel 구축 완료 (api.abyz-lab.work)
-- ✅ 외부 HTTPS 접속 가능 (https://api.abyz-lab.work)
+- ✅ Cloudflare Tunnel 구축 완료 (api.abyz-lab.work, forms.abyz-lab.work) `[2026-01-26 추가]`
+- ✅ 외부 HTTPS 접속 가능 (https://api.abyz-lab.work, https://forms.abyz-lab.work) `[2026-01-26 추가]`
+- ✅ Forms 시스템 배포 완료 (이슈 제출 폼 + 이메일 알림) `[2026-01-26 추가]`
+- ✅ Gmail SMTP 통합 완료 (hnabyz2023@gmail.com → drake.lee@abyzr.com 자동 전달) `[2026-01-26 추가]`
 - ✅ Claude Code, GitHub Copilot 구독 활성 (1년) `[2026-01-12 추가]`
 - ✅ Tailscale VPN 네트워크 구축 완료 (모든 장비 SSH 연결) `[2026-01-12 추가]`
 - ✅ Synology NAS (Gitea + Redmine) 구축 완료 `[2026-01-12 추가]`

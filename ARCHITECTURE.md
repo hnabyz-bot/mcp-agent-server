@@ -70,9 +70,11 @@ graph TD
 
 ### **통합 개발 워크플로우 (Unified Development Workflow)** `[2026-01-12 추가]`
 
-1.  **작업 시작 (Task Initiation)** `[2026-01-12 추가]`
+1.  **작업 시작 (Task Initiation)** `[2026-01-12 추가]` `[2026-01-26 업데이트]`
     - 개발자가 외부 웹폼 또는 CLI를 통해 작업 지시 (예: "신규 기능 개발", "디버깅 요청")
+    - **웹폼 접속:** https://forms.abyz-lab.work ✅ `[완료: 2026-01-26]`
     - Cloudflare를 통해 n8n Webhook 호출 ✅ `[완료: 2026-01-12 - Cloudflare Tunnel 구축]`
+    - 이메일 알림: hnabyz2023@gmail.com → drake.lee@abyzr.com 자동 전달 ✅ `[완료: 2026-01-26]`
 
 2.  **작업 등록 (Task Registration)** `[2026-01-12 추가]`
     - ⏳ n8n이 Redmine API를 호출하여 이슈 자동 생성 `[계획: 미구축]`
