@@ -32,6 +32,188 @@ Response to Webhook
 
 ---
 
+## Gmail SMTP Configuration Guide
+
+### Overview
+
+The `issue-with-email.json` workflow uses Gmail SMTP for sending emails. This guide will help you configure Gmail SMTP in n8n correctly.
+
+### Prerequisites
+
+- Gmail account with 2-Step Verification enabled
+- Access to n8n web interface
+
+### Step 1: Create Gmail App Password
+
+Gmail requires an **App Password** instead of your regular password for SMTP access.
+
+**Create App Password:**
+
+1. Go to [Google Account Settings](https://myaccount.google.com/)
+2. Navigate to **Security** → **2-Step Verification**
+3. Ensure 2-Step Verification is enabled
+4. Scroll to **App passwords** section
+5. Click **Create** app password
+6. Select:
+   - **App:** Mail
+   - **Device:** Other (Custom name) → Enter "n8n"
+7. Click **Generate**
+8. Copy the 16-character password (e.g., `abcd efgh ijkl mnop`)
+
+**Important:**
+- Store this password securely
+- You won't see it again after closing the window
+- This is different from your Gmail password
+
+### Step 2: Configure SMTP Credentials in n8n
+
+1. Open n8n web interface
+2. Navigate to **Credentials** → **Add Credential**
+3. Select **SMTP** credential type
+4. Configure with following settings:
+
+```
+Host: smtp.gmail.com
+Port: 587
+Security: TLS
+
+Username: your-email@gmail.com
+Password: (your 16-character App Password)
+
+From Email: noreply@abyz-lab.work
+```
+
+5. Click **Save**
+6. Test connection by sending a test email
+
+### Step 3: Verify Workflow Configuration
+
+In the `issue-with-email.json` workflow, verify the **Send Email** node:
+
+```json
+{
+  "fromEmail": "noreply@abyz-lab.work",
+  "toEmail": "drake.lee@abyzr.com",
+  "subject": "=New Issue: {{ $json.title }}"
+}
+```
+
+**Configuration Checklist:**
+
+- [ ] SMTP credentials created and tested
+- [ ] From email matches your domain or Gmail
+- [ ] To email is correct recipient
+- [ ] Security is set to TLS (Port 587) or SSL (Port 465)
+
+### Step 4: Test Email Sending
+
+```bash
+curl -X POST http://your-n8n-url:5678/webhook/issue-submission \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Test Email",
+    "description": "Testing Gmail SMTP configuration"
+  }'
+```
+
+**Expected Result:**
+- Email arrives at recipient inbox
+- Check Spam folder if not received
+- Verify n8n execution log for success status
+
+### Gmail Sending Limits
+
+**Free Gmail Account:**
+- **Daily Limit:** 500 emails per day
+- **Recipient Limit:** 500 unique recipients per day
+- **Rate Limit:** Prevents sending too quickly
+
+**Google Workspace (Paid):**
+- Daily limits vary by plan (1,500-2,000+ emails/day)
+- Consider upgrading for higher volume
+
+**If You Hit the Limit:**
+- Wait 24 hours for limit to reset
+- Consider using transactional email service (SendGrid, Mailgun)
+- Distribute sending across multiple accounts
+
+### Troubleshooting Gmail SMTP
+
+#### Issue: Authentication Failed [AUTHENTICATIONFAILED]
+
+**Cause:** Incorrect password or 2FA not enabled
+
+**Solution:**
+1. Verify 2-Step Verification is enabled
+2. Regenerate App Password
+3. Ensure no extra spaces in password
+4. Check username is correct (full Gmail address)
+
+#### Issue: Connection Timed Out
+
+**Cause:** Firewall or incorrect port
+
+**Solution:**
+1. Verify port 587 (TLS) or 465 (SSL) is open
+2. Check security setting matches port
+3. Test connectivity: `telnet smtp.gmail.com 587`
+
+#### Issue: Emails Go to Spam
+
+**Cause:** Sender reputation or missing SPF/DKIM
+
+**Solution:**
+1. Use verified domain for fromEmail
+2. Set up SPF record for your domain
+3. Add recipient to contacts
+4. Avoid spam trigger words in subject
+
+#### Issue: "Less Secure Apps" Error
+
+**Cause:** Google disabled less secure app access
+
+**Solution:**
+- You MUST use App Password (not regular password)
+- Enable 2-Step Verification first
+- Create App Password as shown in Step 1
+
+### Security Best Practices
+
+**Credential Security:**
+- [ ] Never commit App Password to git
+- [ ] Store in environment variables if possible
+- [ ] Rotate App Passwords quarterly
+- [ ] Use separate Gmail account for n8n
+
+**Domain Configuration (if using custom domain):**
+```
+From Email: noreply@abyz-lab.work
+
+SPF Record (DNS):
+v=spf1 include:_spf.google.com ~all
+
+DKIM: Generate key in Google Workspace
+DMARC: Create policy record
+```
+
+### Alternative Email Services
+
+If Gmail limits are insufficient, consider:
+
+**Transactional Email Services:**
+- **SendGrid:** 100 emails/day free
+- **Mailgun:** 5,000 emails/month free
+- **Amazon SES:** Pay-as-you-go ($0.10/1000 emails)
+- **Brevo (Sendinblue):** 300 emails/day free
+
+**Migration Guide:**
+1. Create account with chosen service
+2. Generate SMTP credentials
+3. Update n8n SMTP credential with new host/port
+4. Test workflow
+
+---
+
 ## Issue Submission Workflow (Gitea/Redmine) - Setup Guide (5 Minutes)
 
 ### Step 1: Import Workflow into n8n

@@ -37,6 +37,25 @@
                     <span class="error-message" id="title-error" role="alert"></span>
                 </div>
 
+                <!-- Requester Email -->
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        이메일 <span class="required" aria-label="필수 항목">*</span>
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        class="form-input"
+                        required
+                        aria-required="true"
+                        autocomplete="email"
+                        placeholder="your@email.com"
+                    >
+                    <span class="hint">이슈 제출 확인 메일이 발송됩니다</span>
+                    <span class="error-message" id="email-error" role="alert"></span>
+                </div>
+
                 <!-- Description -->
                 <div class="form-group">
                     <label for="description" class="form-label">
