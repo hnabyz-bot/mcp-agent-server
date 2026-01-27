@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Gitea/Redmine 이슈 제출 폼">
-    <title>이슈 제출 | Issue Submission</title>
+    <meta name="description" content="Gitea/Redmine ?�슈 ?�출 ??>
+    <title>?�슈 ?�출 | Issue Submission</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1 class="title">이슈 제출</h1>
+            <h1 class="title">?�슈 ?�출</h1>
             <p class="subtitle">Issue Submission Form</p>
         </header>
 
@@ -22,7 +22,7 @@
                 <!-- Issue Title -->
                 <div class="form-group">
                     <label for="title" class="form-label">
-                        제목 <span class="required" aria-label="필수 항목">*</span>
+                        ?�목 <span class="required" aria-label="?�수 ??��">*</span>
                     </label>
                     <input
                         type="text"
@@ -32,7 +32,7 @@
                         required
                         aria-required="true"
                         maxlength="255"
-                        placeholder="이슈 제목을 입력하세요"
+                        placeholder="?�슈 ?�목???�력?�세??
                     >
                     <span class="error-message" id="title-error" role="alert"></span>
                 </div>
@@ -40,7 +40,7 @@
                 <!-- Requester Email -->
                 <div class="form-group">
                     <label for="email" class="form-label">
-                        이메일 <span class="required" aria-label="필수 항목">*</span>
+                        ?�메??<span class="required" aria-label="?�수 ??��">*</span>
                     </label>
                     <input
                         type="email"
@@ -52,14 +52,14 @@
                         autocomplete="email"
                         placeholder="your@email.com"
                     >
-                    <span class="hint">이슈 제출 확인 메일이 발송됩니다</span>
+                    <span class="hint">?�슈 ?�출 ?�인 메일??발송?�니??/span>
                     <span class="error-message" id="email-error" role="alert"></span>
                 </div>
 
                 <!-- Description -->
                 <div class="form-group">
                     <label for="description" class="form-label">
-                        설명 <span class="required" aria-label="필수 항목">*</span>
+                        ?�명 <span class="required" aria-label="?�수 ??��">*</span>
                     </label>
                     <textarea
                         id="description"
@@ -68,7 +68,7 @@
                         required
                         aria-required="true"
                         rows="6"
-                        placeholder="이슈에 대한 상세 설명을 입력하세요"
+                        placeholder="?�슈???�???�세 ?�명???�력?�세??
                     ></textarea>
                     <span class="error-message" id="description-error" role="alert"></span>
                 </div>
@@ -76,17 +76,17 @@
                 <!-- Priority and Assignee Row -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="priority" class="form-label">우선순위</label>
+                        <label for="priority" class="form-label">?�선?�위</label>
                         <select id="priority" name="priority" class="form-select">
-                            <option value="low">낮음 (Low)</option>
+                            <option value="low">??�� (Low)</option>
                             <option value="normal" selected>보통 (Normal)</option>
-                            <option value="high">높음 (High)</option>
+                            <option value="high">?�음 (High)</option>
                             <option value="urgent">긴급 (Urgent)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="assignee" class="form-label">담당자</label>
+                        <label for="assignee" class="form-label">?�당??/label>
                         <input
                             type="text"
                             id="assignee"
@@ -95,14 +95,14 @@
                             placeholder="username@example.com"
                             autocomplete="email"
                         >
-                        <span class="hint">이메일 또는 사용자명</span>
+                        <span class="hint">?�메???�는 ?�용?�명</span>
                     </div>
                 </div>
 
                 <!-- Labels and Milestone Row -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="labels" class="form-label">레이블</label>
+                        <label for="labels" class="form-label">?�이�?/label>
                         <input
                             type="text"
                             id="labels"
@@ -110,11 +110,11 @@
                             class="form-input"
                             placeholder="bug, enhancement, documentation"
                         >
-                        <span class="hint">쉼표로 구분하여 입력</span>
+                        <span class="hint">?�표�?구분?�여 ?�력</span>
                     </div>
 
                     <div class="form-group">
-                        <label for="milestone" class="form-label">마일스톤</label>
+                        <label for="milestone" class="form-label">마일?�톤</label>
                         <input
                             type="text"
                             id="milestone"
@@ -127,7 +127,7 @@
 
                 <!-- Related Issues -->
                 <div class="form-group">
-                    <label for="relatedIssues" class="form-label">관련 이슈</label>
+                    <label for="relatedIssues" class="form-label">관???�슈</label>
                     <input
                         type="text"
                         id="relatedIssues"
@@ -135,12 +135,12 @@
                         class="form-input"
                         placeholder="123, 456, 789"
                     >
-                    <span class="hint">쉼표로 구분된 이슈 ID</span>
+                    <span class="hint">?�표�?구분???�슈 ID</span>
                 </div>
 
                 <!-- Attachments -->
                 <div class="form-group">
-                    <label for="attachments" class="form-label">첨부 파일</label>
+                    <label for="attachments" class="form-label">첨�? ?�일</label>
                     <div class="file-upload-wrapper">
                         <input
                             type="file"
@@ -154,25 +154,24 @@
                             <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
-                            <p class="upload-text">파일을 드래그하거나 클릭하여 업로드</p>
-                            <p class="upload-hint" id="file-hint">최대 10개, 각 파일 최대 10MB</p>
+                            <p class="upload-text">?�일???�래그하거나 ?�릭?�여 ?�로??/p>
+                            <p class="upload-hint" id="file-hint">최�? 10�? �??�일 최�? 10MB</p>
                         </div>
                     </div>
-                    <div id="fileList" class="file-list" role="list" aria-label="선택된 파일"></div>
+                    <div id="fileList" class="file-list" role="list" aria-label="?�택???�일"></div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <span class="btn-text">이슈 제출</span>
+                        <span class="btn-text">?�슈 ?�출</span>
                         <span class="btn-loading" hidden>
                             <span class="spinner" aria-hidden="true"></span>
-                            제출 중...
+                            ?�출 �?..
                         </span>
                     </button>
                     <button type="reset" class="btn btn-secondary" id="resetBtn">
-                        초기화
-                    </button>
+                        초기??                    </button>
                 </div>
             </form>
         </main>
@@ -182,6 +181,6 @@
         </footer>
     </div>
 
-    <script src="script.js?v=1.0.3"></script>
+    <script src="script.js?v=1.0.4"></script>
 </body>
 </html>
