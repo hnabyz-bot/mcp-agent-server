@@ -50,9 +50,8 @@ sed -i "s/script\.js?v=[0-9.]*\>/script.js?v=${NEW_VERSION}\>/g" forms-interface
 echo -e "${GREEN}✓ Cache version updated: ${CURRENT_VERSION} → ${NEW_VERSION}${NC}"
 echo ""
 
-# Commit version bump
-git add forms-interface/index.html
-git commit -m " chore: Bump cache version to ${NEW_VERSION}" || echo "No version change needed"
+# NOTE: No git commit here - version management done on Windows only
+# Raspberry Pi is deployment-only, does not commit version changes
 
 # ========================================
 # Step 3: Detect web server
@@ -164,11 +163,10 @@ fi
 echo ""
 
 # ========================================
-# Step 7: Push version bump
+# Step 7: Complete (removed git push - version managed on Windows)
 # ========================================
-echo -e "${BLUE}Step 7: Pushing changes...${NC}"
-git push
-
+echo -e "${BLUE}Step 7: Deployment complete!${NC}"
+echo "Note: Version changes are committed on Windows, not here"
 echo ""
 
 # ========================================
