@@ -1,11 +1,40 @@
-# Issue Submission Workflow - Quick Start Guide
+# Issue Submission Workflows - Quick Start Guide
 
-**Last Updated:** 2026-01-26
-**Workflow Version:** 1.0.0
+**Last Updated:** 2026-01-27
+**Workflow Version:** 1.1.0
 
 ---
 
-## Setup Guide (5 Minutes)
+## Available Workflows
+
+### 1. Issue Submission with Email (`issue-with-email.json)
+
+**Purpose:** Receive form submissions and send direct email notification
+
+**Workflow Structure:**
+```
+Form Input (forms.abyz-lab.work)
+    ↓
+n8n Webhook (/webhook/issue-submission)
+    ↓
+Direct Email Send (drake.lee@abyzr.com)
+    ↓
+Response to Webhook
+```
+
+**Configuration:**
+- **From Email:** noreply@abyz-lab.work
+- **To Email:** drake.lee@abyzr.com (direct, no forwarding)
+- **Email Type:** HTML with styled template
+- **Webhook Path:** `/issue-submission`
+
+**Note:** This workflow sends emails directly to the recipient. The SMTP server configuration is managed separately in n8n credentials.
+
+---
+
+## Issue Submission Workflow (Gitea/Redmine) - Setup Guide (5 Minutes)
+
+### Step 1: Import Workflow into n8n
 
 ### Step 1: Import Workflow into n8n
 

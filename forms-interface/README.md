@@ -101,6 +101,27 @@ const CONFIG = {
 
 To change the endpoint, edit the `webhookUrl` value in `script.js`.
 
+### Email Notification Workflow
+
+**Current Structure (Simplified):**
+```
+Form Input (forms.abyz-lab.work)
+    ↓
+n8n Webhook (/webhook/issue-submission)
+    ↓
+Direct Email Send (drake.lee@abyzr.com)
+    ↓
+Response to Webhook
+```
+
+**Email Configuration:**
+- **From:** noreply@abyz-lab.work
+- **To:** drake.lee@abyzr.com (direct delivery, no intermediate forwarding)
+- **Format:** HTML with styled template
+- **Content:** Issue details (title, description, priority, assignee, timestamp)
+
+**Note:** The SMTP server configuration is managed in n8n credentials. The workflow sends emails directly to the recipient without intermediate forwarding steps.
+
 ### File Upload Limits
 
 Default file upload limits in `script.js`:
