@@ -21,11 +21,30 @@ PROJECT_DIR="$(pwd)"
 FORMS_DIR="$PROJECT_DIR/forms-interface"
 
 # ========================================
-# Step 1: Git Pull
+# Step 1: Git Pull with Auto-Conflict Resolution
 # ========================================
 echo -e "${BLUE}Step 1: Pulling latest changes...${NC}"
-git pull origin main
-echo -e "${GREEN}✓ Git pull completed${NC}"
+
+# Check for local changes
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo -e "${YELLOW}⚠ Local changes detected. Stashing for safe pull...${NC}"
+
+    # Create a timestamped stash
+    STASH_NAME="auto-stash-before-pull-$(date +%Y%m%d_%H%M%S)"
+    git stash push -u -m "$STASH_NAME"
+
+    echo -e "${GREEN}✓ Local changes stashed as: $STASH_NAME${NC}"
+    echo -e "${YELLOW}Note: Raspberry Pi should be read-only. Use 'git stash list' to review stashes.${NC}"
+fi
+
+# Fetch and reset to avoid merge conflicts
+echo -e "${BLUE}Fetching from origin...${NC}"
+git fetch origin main
+
+echo -e "${BLUE}Resetting to origin/main...${NC}"
+git reset --hard origin/main
+
+echo -e "${GREEN}✓ Git pull completed (no conflicts)${NC}"
 echo ""
 
 # ========================================
@@ -87,6 +106,13 @@ sudo chmod -R 755 "$FORMS_DIR"
 # Keep ownership as current user (raspi) to allow git operations
 # Make files readable by web server (www-data)
 sudo chown -R $(whoami):$(whoami) "$FORMS_DIR"
+
+# Set core files to read-only to prevent accidental modifications on Pi
+echo -e "${YELLOW}Setting core files to read-only (prevents accidental edits)...${NC}"
+chmod 444 "$FORMS_DIR/index.html"
+chmod 444 "$FORMS_DIR/script.js"
+chmod 444 "$FORMS_DIR/style.css"
+echo -e "${GREEN}✓ Core files set to read-only${NC}"
 
 echo -e "${GREEN}✓ Deployment completed${NC}"
 echo ""
@@ -179,4 +205,10 @@ echo -e "${YELLOW}Important: Clear browser cache to see changes!${NC}"
 echo "  Windows/Linux: Ctrl + Shift + R"
 echo "  Mac: Cmd + Shift + R"
 echo "  Or use Incognito/Private mode"
+echo ""
+echo -e "${BLUE}Workflow Reminder:${NC}"
+echo "  • Raspberry Pi is deployment-only (read-only)"
+echo "  • Make changes on Windows, then push to GitHub"
+echo "  • Run this script to deploy automatically"
+echo "  • To edit files on Pi temporarily: chmod 644 <file>"
 echo ""
