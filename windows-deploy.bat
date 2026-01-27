@@ -59,7 +59,7 @@ REM ============================================
 echo Step 4: Updating forms-interface\index.html...
 
 REM Create temporary file with updated version
-powershell -Command "(Get-Content forms-interface\index.html) -replace 'script\.js\?v=[0-9.]*', 'script.js?v=%NEW_VERSION%' | Set-Content forms-interface\index.html"
+powershell -Command "$version = '%NEW_VERSION%'; (Get-Content forms-interface\index.html) -replace 'script\.js\?v=[0-9.]*', \"script.js?v=$version\" | Set-Content forms-interface\index.html"
 
 echo [OK] Cache version updated to %NEW_VERSION%
 echo.
