@@ -6,13 +6,16 @@
 
 ## 📚 프로젝트 문서 구조 `[2026-01-13 추가]`
 
-| 문서 | 설명 | 용도 |
+| 문서 | 설명 | 상태 |
 |:---|:---|:---|
 | **[README.md](README.md)** | 프로젝트 개요 및 시작 가이드 | 프로젝트 진입점 |
 | **[ARCHITECTURE.md](ARCHITECTURE.md)** | 시스템 아키텍처 및 설계 | 시스템 설계 이해 |
 | **[PLAN.md](PLAN.md)** | 108단계 구축 계획 | 실행 계획 및 진행 추적 |
 | **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** | 배포, 네트워크, 구축 가이드 | 실제 구축 방법 |
 | **[DEVOPS_INTEGRATION.md](DEVOPS_INTEGRATION.md)** | Gitea/Redmine API 연동 가이드 | DevOps 자동화 |
+| **[issue-register-prd.md](issue-register-prd.md)** | 외부 이슈 등록 시스템 PRD | ✅ 보완 완료 (v1.1.0) |
+| **[mcp-server-prd.md](mcp-server-prd.md)** | 하드웨어 개발 워크플로우 자동화 시스템 PRD | ✅ 재구성 완료 (v2.0.0) |
+| **[PRD-INTEGRATION-GUIDE.md](PRD-INTEGRATION-GUIDE.md)** | 두 PRD 간 통합 포인트 정리 | ✅ 작성 완료 |
 
 **문서 통합 이력 (2026-01-13):**
 - ~~NETWORK_TOPOLOGY.md~~ → DEPLOYMENT_GUIDE.md에 통합
