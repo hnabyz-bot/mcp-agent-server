@@ -29,29 +29,16 @@ echo -e "${GREEN}✓ Git pull completed${NC}"
 echo ""
 
 # ========================================
-# Step 2: Auto-increment cache version
+# Step 2: Read current version (NO modification)
 # ========================================
-echo -e "${BLUE}Step 2: Auto-incrementing cache version...${NC}"
+echo -e "${BLUE}Step 2: Reading cache version...${NC}"
 
-# Current version
-CURRENT_VERSION=$(grep -oP 'script\.js\?v=\K[0-9.]+(?:?=[0-9.]+)' forms-interface/index.html 2>/dev/null || echo "1.0.0")
+# Read current version from index.html
+CURRENT_VERSION=$(grep -oP 'script\.js\?v=\K[0-9.]+(?=["<])' forms-interface/index.html 2>/dev/null || echo "1.0.0")
 
-# Increment version
-MAJOR=$(echo $CURRENT_VERSION | cut -d. -f1)
-MINOR=$(echo $CURRENT_VERSION | cut -d. -f2)
-PATCH=$(echo $CURRENT_VERSION | cut -d. -f3)
-
-NEW_PATCH=$((PATCH + 1))
-NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
-
-# Update index.html
-sed -i "s/script\.js?v=[0-9.]*\>/script.js?v=${NEW_VERSION}\>/g" forms-interface/index.html
-
-echo -e "${GREEN}✓ Cache version updated: ${CURRENT_VERSION} → ${NEW_VERSION}${NC}"
+echo -e "${GREEN}✓ Current cache version: ${CURRENT_VERSION}${NC}"
+echo -e "${YELLOW}Note: Version is managed on Windows, not modified here${NC}"
 echo ""
-
-# NOTE: No git commit here - version management done on Windows only
-# Raspberry Pi is deployment-only, does not commit version changes
 
 # ========================================
 # Step 3: Detect web server
@@ -153,20 +140,21 @@ else
 fi
 
 # Check cache version in index.html
-if grep -q "script.js?v=${NEW_VERSION}" "${DOC_ROOT}/forms/index.html"; then
-    echo -e "${GREEN}✓ Cache version ${NEW_VERSION} updated in index.html${NC}"
+if grep -q "script.js?v=${CURRENT_VERSION}" "${DOC_ROOT}/forms/index.html"; then
+    echo -e "${GREEN}✓ Cache version ${CURRENT_VERSION} verified in index.html${NC}"
 else
-    echo -e "${RED}✗ Cache version not updated${NC}"
+    echo -e "${RED}✗ Cache version mismatch${NC}"
+    echo -e "${YELLOW}Expected: ${CURRENT_VERSION}${NC}"
     exit 1
 fi
 
 echo ""
 
 # ========================================
-# Step 7: Complete (removed git push - version managed on Windows)
+# Step 7: Display deployment summary
 # ========================================
 echo -e "${BLUE}Step 7: Deployment complete!${NC}"
-echo "Note: Version changes are committed on Windows, not here"
+echo -e "${YELLOW}Note: Version was already updated on Windows before git push${NC}"
 echo ""
 
 # ========================================
@@ -177,7 +165,7 @@ echo "Deployment completed successfully!"
 echo "===================================${NC}"
 echo ""
 echo "Deployment Summary:"
-echo "  Cache Version: ${NEW_VERSION}"
+echo "  Cache Version: ${CURRENT_VERSION}"
 echo "  Web Server: ${WEB_SERVER}"
 echo "  Deployment Path: ${DOC_ROOT}/forms"
 echo ""
