@@ -34,12 +34,7 @@ REM ============================================
 REM Step 2: Extract current version
 REM ============================================
 echo Step 2: Reading current cache version...
-for /f "tokens=2 delims==v" %%a in ('findstr /C:"script.js?v=" forms-interface\index.html') do (
-    set "VERSION_LINE=%%a"
-)
-for /f "tokens=1 delims=>" %%b in ("%VERSION_LINE%") do (
-    set "CURRENT_VERSION=%%b"
-)
+for /f "delims=" %%i in ('powershell -Command "if ((Get-Content forms-interface\index.html -Raw) -match 'script\.js\?v=([0-9.]+)') { Write-Output $matches[1] }"') do set CURRENT_VERSION=%%i
 echo Current version: %CURRENT_VERSION%
 echo.
 
