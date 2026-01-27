@@ -529,8 +529,6 @@ function prepareFormData() {
     formData.append('labels', document.getElementById('labels').value.trim());
     formData.append('assignee', document.getElementById('assignee').value.trim());
     formData.append('milestone', document.getElementById('milestone').value.trim());
-    formData.append('estimatedTime', document.getElementById('estimatedTime').value);
-    formData.append('progress', document.getElementById('progress').value);
     formData.append('relatedIssues', document.getElementById('relatedIssues').value.trim());
 
     // Add files
