@@ -329,6 +329,17 @@ function validateForm() {
         isValid = false;
     }
 
+    // Validate email
+    const emailField = document.getElementById('email');
+    if (!validateRequired(emailField)) {
+        isValid = false;
+    } else if (!isValidEmail(emailField.value.trim())) {
+        showFieldError(emailField, '유효한 이메일 주소를 입력하세요');
+        isValid = false;
+    } else {
+        clearFieldError(emailField);
+    }
+
     // Validate description
     const descriptionField = document.getElementById('description');
     if (!validateDescription(descriptionField)) {
@@ -512,6 +523,7 @@ function prepareFormData() {
 
     // Add form fields
     formData.append('title', document.getElementById('title').value.trim());
+    formData.append('email', document.getElementById('email').value.trim());
     formData.append('description', document.getElementById('description').value.trim());
     formData.append('priority', document.getElementById('priority').value);
     formData.append('labels', document.getElementById('labels').value.trim());
@@ -618,6 +630,18 @@ function initEventListeners() {
     // Real-time validation on blur
     const titleField = document.getElementById('title');
     titleField.addEventListener('blur', () => validateTitle(titleField));
+
+    const emailField = document.getElementById('email');
+    emailField.addEventListener('blur', () => {
+        if (!validateRequired(emailField)) {
+            return;
+        }
+        if (!isValidEmail(emailField.value.trim())) {
+            showFieldError(emailField, '유효한 이메일 주소를 입력하세요');
+        } else {
+            clearFieldError(emailField);
+        }
+    });
 
     const descriptionField = document.getElementById('description');
     descriptionField.addEventListener('blur', () => validateDescription(descriptionField));
