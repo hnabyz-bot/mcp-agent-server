@@ -34,7 +34,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={\n  \"success\": true,\n  \"message\": \"Issue submitted and email sent\",\n  \"timestamp\": \"{{ $now.toISO() }}\"\n}",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Issue submitted successfully\" } }}",
         "options": {
           "responseCode": 200
         }
