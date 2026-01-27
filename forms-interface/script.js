@@ -647,12 +647,6 @@ function initEventListeners() {
     const assigneeField = document.getElementById('assignee');
     assigneeField.addEventListener('blur', () => validateAssignee(assigneeField));
 
-    const progressField = document.getElementById('progress');
-    progressField.addEventListener('blur', () => validateProgress(progressField));
-
-    const estimatedTimeField = document.getElementById('estimatedTime');
-    estimatedTimeField.addEventListener('blur', () => validateEstimatedTime(estimatedTimeField));
-
     const relatedIssuesField = document.getElementById('relatedIssues');
     relatedIssuesField.addEventListener('blur', () => validateRelatedIssues(relatedIssuesField));
 
