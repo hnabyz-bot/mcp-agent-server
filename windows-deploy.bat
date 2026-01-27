@@ -111,11 +111,17 @@ echo Deployment Summary:
 echo   Previous Version: %CURRENT_VERSION%
 echo   New Version: %NEW_VERSION%
 echo.
-echo Next Steps:
-echo   1. SSH into Raspberry Pi
-echo   2. Run: cd ~/workspace/mcp-agent-server
-echo   3. Run: git pull
-echo   4. Run: sudo ./deploy-and-restart.sh
+echo Next Steps (Raspberry Pi):
+echo   The deploy-and-restart.sh script will now:
+echo   - Automatically pull latest changes (no conflicts!)
+echo   - Deploy to web server
+echo   - Restart nginx/apache
+echo   - Set files to read-only
+echo.
+echo   Just run this on your Pi:
+echo   1. SSH: ssh raspi@your-pi-ip
+echo   2. cd ~/workspace/mcp-agent-server
+echo   3. sudo ./deploy-and-restart.sh
 echo.
 echo Access URLs:
 echo   - http://localhost/forms
@@ -124,5 +130,7 @@ echo.
 echo IMPORTANT: Clear browser cache after deployment!
 echo   Windows/Linux: Ctrl + Shift + R
 echo   Mac: Cmd + Shift + R
+echo.
+echo NOTE: Git conflicts are now auto-resolved by the script!
 echo.
 pause

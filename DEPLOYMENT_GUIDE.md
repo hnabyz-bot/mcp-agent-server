@@ -496,7 +496,319 @@ journalctl -u cloudflared -f
 
 ---
 
-## 6. 참고 자료
+## 6. forms-interface 자동 배포 시스템 `[2026-01-27 추가]`
+
+> **📝 목적:** forms-interface 웹 애플리케이션의 배포를 완전 자동화하여 Git 충돌 없이 안전하게 배포
+
+### 6.1 개요
+
+**특징:**
+- **Git 충돌 자동 해결:** 로컬 변경 사항 자동 stash + reset 방식
+- **읽기 전용 보호:** 핵심 파일 자동으로 읽기 전용 설정 (실수 수정 방지)
+- **완전 자동화:** git pull → 배포 → 서비스 재시작 → 권한 설정까지 원큐에 해결
+- **크로스 플랫폼:** Windows(개발) + Raspberry Pi(배포) 환경 지원
+
+### 6.2 배포 워크플로우
+
+```mermaid
+graph LR
+    Windows[Windows PC<br/>개발 환경] -->|1. 코드 수정| LocalGit[로컬 Git]
+    LocalGit -->|2. windows-deploy.bat<br/>캐시 버전 자동 증가| GitHub[GitHub]
+    GitHub -->|3. git push| Remote[원격 저장소]
+
+    Remote -->|4. deploy-and-restart.sh| Pi[Raspberry Pi<br/>배포 서버]
+    Pi -->|5. 자동 충돌 해결| Pull[Git Pull<br/>(Stash + Reset)]
+    Pull -->|6. 심볼릭 링크| Deploy[/var/www/html/forms]
+    Deploy -->|7. 서비스 재시작| Nginx[Nginx/Apache]
+
+    style Windows fill:#e1bee7
+    style Pi fill:#aed581
+    style GitHub fill:#b3e5fc
+    style Nginx fill:#81c784
+```
+
+### 6.3 Windows (개발 환경)
+
+#### Step 1: 코드 수정
+
+Windows에서 `forms-interface/` 폴더의 파일들을 수정합니다:
+- `index.html` - HTML 구조
+- `script.js` - JavaScript 로직
+- `style.css` - 스타일시트
+
+#### Step 2: 배포 스크립트 실행
+
+```batch
+# Windows에서 실행
+windows-deploy.bat
+```
+
+**자동으로 수행하는 작업:**
+1. Git 상태 확인 (변경 사항 체크)
+2. 현재 캐시 버전 읽기 (예: 1.0.5)
+3. 캐시 버전 자동 증가 (예: 1.0.5 → 1.0.6)
+4. `index.html`의 버전 업데이트
+5. Git 커밋 생성
+6. GitHub에 푸시
+
+**출력 예시:**
+```
+===================================
+Forms Interface Deployment (Windows)
+===================================
+
+Step 1: Checking git status...
+[OK] Working directory is clean
+
+Step 2: Reading current cache version...
+Current version: 1.0.5
+
+Step 3: Incrementing cache version...
+New version: 1.0.6
+
+Step 4: Updating forms-interface\index.html...
+[OK] Cache version updated to 1.0.6
+
+Step 5: Committing and pushing changes...
+[OK] Changes committed
+Pushing to GitHub...
+[OK] Changes pushed to GitHub
+
+===================================
+Deployment completed successfully!
+===================================
+```
+
+### 6.4 Raspberry Pi (배포 환경)
+
+#### 초기 설정 (최초 1회만 실행)
+
+```bash
+# Raspberry Pi에서 프로젝트 클론 후
+cd ~/workspace/mcp-agent-server
+
+# 초기 설정 스크립트 실행
+chmod +x setup-raspberry-pi.sh
+./setup-raspberry-pi.sh
+```
+
+**초기 설정이 자동으로 수행하는 작업:**
+1. 웹 서버 설치 (nginx 또는 apache2)
+2. 파일 권한 설정
+3. 배포 스크립트 실행 권한 부여
+4. (선택사항) 자동 업데이트 systemd 서비스 등록
+
+#### 정기 배포 (Windows에서 푸시 후 실행)
+
+```bash
+# Raspberry Pi에서 실행
+cd ~/workspace/mcp-agent-server
+sudo ./deploy-and-restart.sh
+```
+
+**자동으로 수행하는 작업:**
+1. **Git 충돌 자동 해결:**
+   - 로컬 변경 사항 감지 → 자동 stash
+   - `git fetch origin main`
+   - `git reset --hard origin/main` (병합 충돌 없음)
+2. **배포:**
+   - 기존 배포 백업 (`forms.backup.YYYYMMDD_HHMMSS`)
+   - 심볼릭 링크 생성 (`/var/www/html/forms` → `forms-interface`)
+3. **권한 설정:**
+   - 디렉토리 권한: 755
+   - 핵심 파일 읽기 전용: 444 (`index.html`, `script.js`, `style.css`)
+4. **서비스 재시작:**
+   - nginx 또는 apache2 자동 재시작
+5. **검증:**
+   - 심볼릭 링크 존재 확인
+   - `script.js` 존재 확인
+   - 캐시 버전 일치 확인
+
+**출력 예시:**
+```
+===================================
+Forms Interface Auto-Deployment
+===================================
+
+Step 1: Pulling latest changes...
+⚠ Local changes detected. Stashing for safe pull...
+✓ Local changes stashed as: auto-stash-before-pull-20260127_143022
+Note: Raspberry Pi should be read-only. Use 'git stash list' to review stashes.
+Fetching from origin...
+Resetting to origin/main...
+✓ Git pull completed (no conflicts)
+
+Step 2: Reading cache version...
+✓ Current cache version: 1.0.6
+Note: Version is managed on Windows, not modified here
+
+Step 3: Detecting web server...
+✓ Detected: nginx
+
+Step 4: Deploying to /var/www/html/forms...
+Backing up existing deployment...
+Creating symbolic link...
+Setting permissions...
+Setting core files to read-only (prevents accidental edits)...
+✓ Core files set to read-only
+✓ Deployment completed
+
+Step 5: Restarting web server...
+✓ nginx restarted
+
+Step 6: Verifying deployment...
+✓ Symbolic link exists
+✓ script.js found
+✓ Email field present in script.js
+✓ Cache version 1.0.6 verified in index.html
+
+Step 7: Deployment complete!
+
+===================================
+Deployment completed successfully!
+===================================
+
+Access URLs:
+  → http://localhost/forms
+  → https://forms.abyz-lab.work
+
+Workflow Reminder:
+  • Raspberry Pi is deployment-only (read-only)
+  • Make changes on Windows, then push to GitHub
+  • Run this script to deploy automatically
+  • To edit files on Pi temporarily: chmod 644 <file>
+```
+
+### 6.5 Git 충돌 해결 상세
+
+**문제 원인:**
+- Windows에서 수정 → git push
+- Raspberry Pi에서도 수정 → git pull 시 충돌
+
+**해결 방법 (자동):**
+```bash
+# deploy-and-restart.sh 내부 로직
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    # 로컬 변경 감지
+    git stash push -u -m "auto-stash-before-pull-$(date +%Y%m%d_%H%M%S)"
+fi
+
+git fetch origin main
+git reset --hard origin/main  # 병합 없이 강제 reset
+```
+
+**장점:**
+- 병합 충돌이 발생하지 않음
+- 로컬 변경이 안전하게 보관됨 (stash)
+- 원격 저장소 상태로 즉시 동기화
+
+### 6.6 읽기 전용 파일 보호
+
+**목적:** 라즈베리 파이에서 실수로 파일 수정 방지
+
+**구현:**
+```bash
+# 배포 후 자동으로 핵심 파일을 읽기 전용으로 설정
+chmod 444 "$FORMS_DIR/index.html"
+chmod 444 "$FORMS_DIR/script.js"
+chmod 444 "$FORMS_DIR/style.css"
+```
+
+**임시로 수정이 필요한 경우:**
+```bash
+# 읽기 전용 해제
+chmod 644 forms-interface/script.js
+
+# 수정 후 다시 읽기 전용으로
+chmod 444 forms-interface/script.js
+```
+
+### 6.7 파일 구조
+
+```
+mcp-agent-server/
+├── forms-interface/           # 웹 애플리케이션
+│   ├── index.html
+│   ├── script.js
+│   └── style.css
+├── deploy-and-restart.sh      # Raspberry Pi 배포 스크립트
+├── windows-deploy.bat         # Windows 배포 스크립트
+└── setup-raspberry-pi.sh      # Raspberry Pi 초기 설정 스크립트
+```
+
+### 6.8 배포 확인
+
+#### 브라우저 접속
+```
+http://localhost/forms
+https://forms.abyz-lab.work
+```
+
+#### 캐시 강력 새로고침
+- Windows/Linux: `Ctrl + Shift + R`
+- Mac: `Cmd + Shift + R`
+- 또는 시크릿 모드/Incognito 사용
+
+#### 배포 버전 확인
+```bash
+# Raspberry Pi에서
+grep -oP 'script\.js\?v=\K[0-9.]+(?=["<])' /var/www/html/forms/index.html
+# 출력: 1.0.6
+```
+
+### 6.9 트러블슈팅
+
+#### 문제 1: Permission denied (checkout 실패)
+**원인:** 웹 서버가 파일을 사용 중
+**해결:**
+```bash
+# 웹 서버 중지
+sudo systemctl stop nginx
+
+# 권한 변경
+sudo chown -R raspi:raspi forms-interface/
+
+# 다시 배포
+sudo ./deploy-and-restart.sh
+```
+
+#### 문제 2: 변경 사항이 반영되지 않음
+**원인:** 브라우저 캐시
+**해결:**
+- `Ctrl + Shift + R`로 강력 새로고침
+- 또는 캐시 버전이 올바르게 증가했는지 확인
+
+#### 문제 3: 심볼릭 링크 오류
+**확인:**
+```bash
+ls -la /var/www/html/ | grep forms
+# 출력: lrwxrwxrwx 1 root root   XX Jan 27 14:30 forms -> /home/raspi/workspace/mcp-agent-server/forms-interface
+```
+
+### 6.10 자동화 옵션
+
+#### systemd 타이머로 자동 업데이트 (선택사항)
+
+초기 설정 스크립트 실행 시 자동 업데이트를 활성화할 수 있습니다:
+
+```bash
+./setup-raspberry-pi.sh
+# "Do you want to enable auto-pull on boot? (y/n)" → y 선택
+```
+
+**동작:**
+- 부팅 후 5분 후 첫 업데이트
+- 이후 매 1시간마다 자동 업데이트
+- systemd 서비스로 관리
+
+**상태 확인:**
+```bash
+sudo systemctl status mcp-agent-server-update.timer
+```
+
+---
+
+## 7. 참고 자료
 
 - [Cloudflare Tunnel 문서](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
 - [n8n 공식 문서](https://docs.n8n.io/)
