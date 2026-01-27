@@ -81,10 +81,12 @@ fi
 echo -e "${YELLOW}Creating symbolic link...${NC}"
 sudo ln -sf "$FORMS_DIR" "${DOC_ROOT}/forms"
 
-# Set permissions
+# Set permissions (read-only for web server, keep ownership for git)
 echo -e "${YELLOW}Setting permissions...${NC}"
-sudo chown -R www-data:www-data "$FORMS_DIR"
 sudo chmod -R 755 "$FORMS_DIR"
+# Keep ownership as current user (raspi) to allow git operations
+# Make files readable by web server (www-data)
+sudo chown -R $(whoami):$(whoami) "$FORMS_DIR"
 
 echo -e "${GREEN}✓ Deployment completed${NC}"
 echo ""
