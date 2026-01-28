@@ -6,7 +6,9 @@
       "Bash(git -C \"d:\\\\workspace\\\\github-space\\\\mcp-agent-server\" status)",
       "Bash(git -C \"d:\\\\workspace\\\\github-space\\\\mcp-agent-server\" diff forms-interface/index.html)",
       "Bash(git -C \"d:\\\\workspace\\\\github-space\\\\mcp-agent-server\" log --oneline -3)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(./scripts/project-status.sh:*)",
+      "Bash(./scripts/post-deploy-monitor.sh:*)"
     ]
   },
   "enabledMcpjsonServers": [
