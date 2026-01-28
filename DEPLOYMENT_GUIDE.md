@@ -808,6 +808,203 @@ sudo systemctl status mcp-agent-server-update.timer
 
 ---
 
+## 6.11 문제 해결 기록 `[2026-01-28 추가]`
+
+> **목적:** 발생했던 문제들과 해결 방법을 문서화하여 동일한 실수 방지
+
+### 6.11.1 파일명 불일치 (style.css vs styles.css)
+
+**발생 일시:** 2026-01-28 배포 시도
+
+**증상:**
+```
+chmod: cannot access '.../forms-interface/style.css': No such file or directory
+[ERROR] Deployment failed. Rolling back...
+```
+
+**원인:**
+- 실제 파일명: `styles.css` (복수)
+- 코드 참조: `style.css` (단수)
+- Windows 개발 환경에서만 검증하고 실제 라즈베리 파이 환경에서 파일 확인을 하지 않음
+
+**해결:**
+```bash
+# 1. 실제 파일명 확인
+ls -la forms-interface/*.css
+
+# 2. 코드베이스 전체 검색
+grep -r "style\.css" --include="*.html" --include="*.js" --include="*.sh" --include="*.md"
+
+# 3. 모든 참조를 styles.css로 수정
+# 수정 파일:
+# - deploy-and-restart.sh
+# - tests/deployment/**/*.sh
+# - DEPLOYMENT_GUIDE.md
+# - 기타 문서들
+```
+
+**예방:**
+- [ ] 실제 파일명 확인 후 코드 작성
+- [ ] grep으로 코드베이스 전체 검색 후 수정
+- [ ] 두 환경에서 모두 파일 존재 확인
+
+### 6.11.2 실행 권한 소실 (git pull 후)
+
+**발생 일시:** 2026-01-28 최초 배포 시도
+
+**증상:**
+```
+sudo-rs: cannot execute '.../deploy-and-restart.sh': Permission denied (os error 13)
+```
+
+**원인:**
+- git pull 후 실행 권한이 유지되지 않음 (Windows → Linux line ending 문제 가능성)
+- 저장소에서 클론 시 실행 권한이 설정되지 않음
+- 파일 시스템 간 권한 전파 불일치
+
+**해결:**
+```bash
+# 권한 재부여
+chmod +x deploy-and-restart.sh
+chmod +x setup-raspberry-pi.sh
+
+# 권한 확인
+ls -la *.sh
+# expected: -rwxr-xr-x (755)
+```
+
+**예방:**
+- [ ] setup-raspberry-pi.sh 실행 시 권한 자동 설정 (이미 구현됨)
+- [ ] git pull 후 항상 권한 확인
+- [ ] .gitattributes에 실행 권한 보존 설정 (선택사항)
+
+### 6.11.3 sudo-rs 실행 거부
+
+**발생 일시:** 2026-01-28 두 번째 배포 시도
+
+**증상:**
+```
+thread 'main' panicked at src/exec/use_pty/monitor.rs:283:45
+internal error: entered unreachable code
+```
+
+**원인:**
+- sudo-rs (Rust로 재작성된 sudo 대체제)가 특정 상황에서 실행 거부
+- 파일 권한이나 환경 변수 문제로 패닉 발생
+
+**해결:**
+```bash
+# 방법 1: 권한 재부여 후 재시도
+chmod +x deploy-and-restart.sh
+sudo ./deploy-and-restart.sh
+
+# 방법 2: sudo -s 사용 (shell 직접 실행)
+sudo -s bash -c './deploy-and-restart.sh'
+
+# 방법 3: 전통 sudo 사용 (설치되어 있는 경우)
+sudo ./deploy-and-restart.sh
+```
+
+**예방:**
+- [ ] chmod +x로 실행 권한 항상 부여
+- [ ] sudo -s bash를 사용하여 shell 실행
+- [ ] sudo-rs 문제가 지속되면 전통 sudo로 변경 검토
+
+### 6.11.4 브라우저 캐시로 변경사항 반영 안 됨
+
+**증상:** 배포 후 변경사항이 보이지 않음
+
+**원인:** 브라우저가 이전 버전의 파일을 캐싱하고 있음
+
+**해결:**
+1. 캐시 강력 새로고침: `Ctrl + Shift + R` (Windows/Linux), `Cmd + Shift + R` (Mac)
+2. 시크릿 모드/Incognito 모드 사용
+3. 캐시 버전이 올바르게 증가했는지 확인:
+   ```bash
+   grep -oP 'script\.js\?v=\K[0-9.]+' /var/www/html/forms/index.html
+   ```
+
+**예방:**
+- [ ] 항상 캐시 버전 증가 (windows-deploy.bat 자동화)
+- [ ] 배포 후 즉시 브라우저 새로고침 안내
+
+### 6.11.5 문제 해결 워크플로우
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 1. 문제 발생                                         │
+│    ↓                                                  │
+│ 2. 문제 증상 로깅 (에러 메시지, 로그)               │
+│    ↓                                                  │
+│ 3. 원인 분석 (어떤 환경에서 발생?)                  │
+│    ↓                                                  │
+│ 4. 임시 조치 (롤백, 서비스 중지 등)                   │
+│    ↓                                                  │
+│ 5. 근본적 해결 (chmod 권한 부여, 파일명 수정 등)      │
+│    ↓                                                  │
+│ 6. 영구적 해결 (문서 업데이트, 프로세스 개선)        │
+│    ↓                                                  │
+│ 7. 재발 방지 (Pre-flight 체크리스트 추가)            │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 6.11.6 배포 실패 시 대응 절차
+
+**1. 당황 대응:**
+```bash
+# 배포 실패 시 롤백 확인
+ls -la /var/www/html/forms.backup.*
+
+# 최신 백업으로 복원
+sudo mv /var/www/html/forms.backup.YYYYMMDD_HHMMSS /var/www/html/forms
+
+# 웹 서버 재시작
+sudo systemctl restart nginx
+```
+
+**2. 로그 분석:**
+```bash
+# 배포 로그 확인
+tail -50 $HOME/mcp-agent-deploy.log
+
+# nginx 에러 로그
+sudo tail -50 /var/log/nginx/error.log
+```
+
+**3. 문제 해결 후 재시도:**
+```bash
+# Pre-flight 체크리스트 실행
+./pre-flight-check.sh
+
+# 문제 해결 후 재배포
+sudo ./deploy-and-restart.sh
+```
+
+**4. 이슈 트래킹:**
+- 발생한 문제를 [docs/PRE_DEPLOYMENT_CHECKLIST.md](docs/PRE_DEPLOYMENT_CHECKLIST.md)에 기록
+- 재발 방지를 위해 문서 업데이트
+- 팀원들과 공유
+
+### 6.11.7 학습된 교훈
+
+**1. 환경 불일치 검증:**
+- ❌ Windows에서만 검증하고 배포 → 실제 환경에서 실패
+- ✅ 배포 환경(라즈베리 파이)에서 먼저 기본 검증
+
+**2. 기본 검증 누락:**
+- ❌ 파일명, 권한 등 사전 확인 없이 배포
+- ✅ 배포 전 Pre-flight 체크리스트 실행
+
+**3. 환경 차이 예측:**
+- ❌ Windows/Unix 차이를 고려하지 않음
+- ✅ line ending, 권한, 파일 시스템 차이 고려
+
+**4. 검증 프로세스 부재:**
+- ❌ 배포 후에만 검증
+- ✅ 배포 전/후 모두 검증, 단계별 진행
+
+---
+
 ## 7. 참고 자료
 
 - [Cloudflare Tunnel 문서](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
