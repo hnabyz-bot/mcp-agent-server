@@ -208,7 +208,7 @@ sudo chown -R $(whoami):$(whoami) "$FORMS_DIR"
 log_info "Setting core files to read-only (prevents accidental edits)..."
 chmod 444 "$FORMS_DIR/index.html"
 chmod 444 "$FORMS_DIR/script.js"
-chmod 444 "$FORMS_DIR/style.css"
+chmod 444 "$FORMS_DIR/styles.css"
 log_info "Core files set to read-only"
 
 log_info "Deployment completed"
