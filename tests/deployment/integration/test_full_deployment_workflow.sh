@@ -71,7 +71,7 @@ fi
 
 # Test 1.2: Check for required files
 log_info "Test 1.2: Check for required files"
-REQUIRED_FILES=("index.html" "script.js" "style.css")
+REQUIRED_FILES=("index.html" "script.js" "styles.css")
 ALL_FILES_PRESENT=true
 
 for file in "${REQUIRED_FILES[@]}"; do
@@ -82,7 +82,7 @@ for file in "${REQUIRED_FILES[@]}"; do
 done
 
 if [ "$ALL_FILES_PRESENT" = true ]; then
-    assert_pass "All required files present (index.html, script.js, style.css)"
+    assert_pass "All required files present (index.html, script.js, styles.css)"
 fi
 
 # Test 1.3: Read current version
@@ -194,7 +194,7 @@ log_info "Test 3.4: Set file permissions"
 chmod -R 755 "$TEST_DEPLOY_DIR/forms-interface"
 chmod 444 "$TEST_DEPLOY_DIR/forms-interface/index.html"
 chmod 444 "$TEST_DEPLOY_DIR/forms-interface/script.js"
-chmod 444 "$TEST_DEPLOY_DIR/forms-interface/style.css"
+chmod 444 "$TEST_DEPLOY_DIR/forms-interface/styles.css"
 
 INDEX_PERM=$(stat -c "%a" "$TEST_DEPLOY_DIR/forms-interface/index.html" 2>/dev/null || stat -f "%A" "$TEST_DEPLOY_DIR/forms-interface/index.html")
 

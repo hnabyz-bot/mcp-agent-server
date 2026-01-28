@@ -41,7 +41,7 @@ echo ""
 # Create test files
 touch forms-interface/index.html
 touch forms-interface/script.js
-touch forms-interface/style.css
+touch forms-interface/styles.css
 
 # ========================================
 # Test 1: Directory permission 755
@@ -66,16 +66,16 @@ echo "Test 2: Set core files to read-only (444)"
 
 chmod 444 forms-interface/index.html
 chmod 444 forms-interface/script.js
-chmod 444 forms-interface/style.css
+chmod 444 forms-interface/styles.css
 
 INDEX_PERM=$(stat -c "%a" forms-interface/index.html 2>/dev/null || stat -f "%A" forms-interface/index.html)
 SCRIPT_PERM=$(stat -c "%a" forms-interface/script.js 2>/dev/null || stat -f "%A" forms-interface/script.js)
-STYLE_PERM=$(stat -c "%a" forms-interface/style.css 2>/dev/null || stat -f "%A" forms-interface/style.css)
+STYLE_PERM=$(stat -c "%a" forms-interface/styles.css 2>/dev/null || stat -f "%A" forms-interface/styles.css)
 
 if [ "$INDEX_PERM" = "444" ] && [ "$SCRIPT_PERM" = "444" ] && [ "$STYLE_PERM" = "444" ]; then
     assert_pass "All core files set to 444 (read-only)"
 else
-    assert_fail "Core files read-only" "index.html=$INDEX_PERM, script.js=$SCRIPT_PERM, style.css=$STYLE_PERM"
+    assert_fail "Core files read-only" "index.html=$INDEX_PERM, script.js=$SCRIPT_PERM, styles.css=$STYLE_PERM"
 fi
 
 # ========================================

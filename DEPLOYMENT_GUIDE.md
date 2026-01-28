@@ -534,7 +534,7 @@ graph LR
 Windows에서 `forms-interface/` 폴더의 파일들을 수정합니다:
 - `index.html` - HTML 구조
 - `script.js` - JavaScript 로직
-- `style.css` - 스타일시트
+- `styles.css` - 스타일시트
 
 #### Step 2: 배포 스크립트 실행
 
@@ -616,7 +616,7 @@ sudo ./deploy-and-restart.sh
    - 심볼릭 링크 생성 (`/var/www/html/forms` → `forms-interface`)
 3. **권한 설정:**
    - 디렉토리 권한: 755
-   - 핵심 파일 읽기 전용: 444 (`index.html`, `script.js`, `style.css`)
+   - 핵심 파일 읽기 전용: 444 (`index.html`, `script.js`, `styles.css`)
 4. **서비스 재시작:**
    - nginx 또는 apache2 자동 재시작
 5. **검증:**
@@ -711,7 +711,7 @@ git reset --hard origin/main  # 병합 없이 강제 reset
 # 배포 후 자동으로 핵심 파일을 읽기 전용으로 설정
 chmod 444 "$FORMS_DIR/index.html"
 chmod 444 "$FORMS_DIR/script.js"
-chmod 444 "$FORMS_DIR/style.css"
+chmod 444 "$FORMS_DIR/styles.css"
 ```
 
 **임시로 수정이 필요한 경우:**
@@ -730,7 +730,7 @@ mcp-agent-server/
 ├── forms-interface/           # 웹 애플리케이션
 │   ├── index.html
 │   ├── script.js
-│   └── style.css
+│   └── styles.css
 ├── deploy-and-restart.sh      # Raspberry Pi 배포 스크립트
 ├── windows-deploy.bat         # Windows 배포 스크립트
 └── setup-raspberry-pi.sh      # Raspberry Pi 초기 설정 스크립트

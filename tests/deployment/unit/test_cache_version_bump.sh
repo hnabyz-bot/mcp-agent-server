@@ -48,7 +48,7 @@ cat > index.html << 'EOF'
 <html>
 <head>
     <title>Test Form</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
     <script src="script.js?v=1.0.5"></script>
 </head>
 <body>

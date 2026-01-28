@@ -46,7 +46,7 @@ cd "$TEST_DIR"
 # Create test files
 touch forms-interface/index.html
 touch forms-interface/script.js
-touch forms-interface/style.css
+touch forms-interface/styles.css
 
 # ========================================
 # Test 1: Web server read-only access
@@ -55,7 +55,7 @@ echo "Test 1: Verify web server has read-only access"
 
 chmod 444 forms-interface/index.html
 chmod 444 forms-interface/script.js
-chmod 444 forms-interface/style.css
+chmod 444 forms-interface/styles.css
 
 # Check if files are readable
 if [ -r forms-interface/index.html ]; then
