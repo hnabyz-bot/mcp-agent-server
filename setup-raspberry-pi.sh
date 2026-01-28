@@ -124,8 +124,8 @@ fi
 
 # Grant write permission to log file (create if not exists)
 if [ ! -f "$LOG_FILE" ]; then
-    sudo touch "$LOG_FILE"
-    sudo chmod 666 "$LOG_FILE"
+    touch "$LOG_FILE"
+    chmod 666 "$LOG_FILE"
 fi
 
 log_info "Log file created: $LOG_FILE"
