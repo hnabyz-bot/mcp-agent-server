@@ -7,7 +7,7 @@ set -e
 # ============================================
 # Configuration
 # ============================================
-LOG_FILE="/var/log/mcp-agent-setup.log"
+LOG_FILE="$HOME/mcp-agent-setup.log"
 UPDATE_INTERVAL_HOURS=6  # Changed from 1 hour to 6 hours
 
 # ============================================

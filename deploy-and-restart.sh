@@ -7,7 +7,7 @@ set -e  # Exit on error
 # ============================================
 # Configuration
 # ============================================
-LOG_FILE="/var/log/mcp-agent-deploy.log"
+LOG_FILE="$HOME/mcp-agent-deploy.log"
 MAX_BACKUPS=5
 FORMS_DIR="$(pwd)/forms-interface"
 BACKUP_RETENTION_DAYS=7
