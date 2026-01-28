@@ -13,6 +13,9 @@
 | **[PLAN.md](PLAN.md)** | 108단계 구축 계획 | 실행 계획 및 진행 추적 |
 | **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** | 배포, 네트워크, 구축 가이드 | 실제 구축 방법 |
 | **[DEVOPS_INTEGRATION.md](DEVOPS_INTEGRATION.md)** | Gitea/Redmine API 연동 가이드 | DevOps 자동화 |
+| **[docs/SESSION_RECOVERY.md](docs/SESSION_RECOVERY.md)** | 세션 컨텍스트 초과 시 복구 가이드 | ✅ 작성 완료 (2026-01-28) |
+| **[docs/DEVELOPMENT_METHODOLOGY.md](docs/DEVELOPMENT_METHODOLOGY.md)** | 개발 방법론 및 실패 패턴 분석 | ✅ 작성 완료 (2026-01-28) |
+| **[docs/PRE_DEPLOYMENT_CHECKLIST.md](docs/PRE_DEPLOYMENT_CHECKLIST.md)** | 배포 전 필수 검증 체크리스트 | ✅ 작성 완료 (2026-01-28) |
 | **[issue-register-prd.md](issue-register-prd.md)** | 외부 이슈 등록 시스템 PRD | ✅ 보완 완료 (v1.1.0) |
 | **[mcp-server-prd.md](mcp-server-prd.md)** | 하드웨어 개발 워크플로우 자동화 시스템 PRD | ✅ 재구성 완료 (v2.0.0) |
 | **[PRD-INTEGRATION-GUIDE.md](PRD-INTEGRATION-GUIDE.md)** | 두 PRD 간 통합 포인트 정리 | ✅ 작성 완료 |
