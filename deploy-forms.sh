@@ -104,14 +104,13 @@ case $WEB_SERVER in
         echo -e "${YELLOW}Creating symbolic link...${NC}"
         sudo ln -sf "$FORMS_DIR" "$DOC_ROOT/forms"
 
-        # Set permissions (preserve user ownership, allow www-data to read)
+        # Set permissions (KEEP USER OWNERSHIP for Git compatibility)
         echo -e "${YELLOW}Setting permissions...${NC}"
-        # Add www-data to group with read access, preserve user ownership
-        sudo chown -R $(whoami):www-data "$FORMS_DIR"
-        sudo chmod -R 750 "$FORMS_DIR"
-        # Ensure files are readable by www-data
-        sudo find "$FORMS_DIR" -type f -exec chmod 640 {} \;
-        sudo find "$FORMS_DIR" -type d -exec chmod 750 {} \;
+        # NO chown needed - keep user ownership (e.g., raspi:raspi)
+        # Directories: 755 (rwxr-xr-x) - owner full, group/others read+execute
+        sudo find "$FORMS_DIR" -type d -exec chmod 755 {} \;
+        # Files: 644 (rw-r--r--) - owner read+write, group/others read-only
+        sudo find "$FORMS_DIR" -type f -exec chmod 644 {} \;
 
         echo -e "${GREEN}✓ Deployment completed${NC}"
         echo ""
@@ -133,6 +132,38 @@ case $WEB_SERVER in
         python3 -m http.server 8080
         ;;
 esac
+
+# Step 4: Verify deployment
+if [ "$WEB_SERVER" = "nginx" ] || [ "$WEB_SERVER" = "apache" ]; then
+    echo ""
+    echo -e "${YELLOW}Step 4: Verifying deployment...${NC}"
+
+    # Check symbolic link
+    if [ -L "$DOC_ROOT/forms" ]; then
+        echo -e "${GREEN}✓ Symbolic link exists${NC}"
+    else
+        echo -e "${RED}✗ Symbolic link not found${NC}"
+        exit 1
+    fi
+
+    # Check file permissions
+    PERM=$(stat -c "%a" "$FORMS_DIR/index.html" 2>/dev/null || stat -f "%A" "$FORMS_DIR/index.html")
+    if [ "$PERM" = "644" ]; then
+        echo -e "${GREEN}✓ File permissions correct (644)${NC}"
+    else
+        echo -e "${YELLOW}⚠ Warning: Unexpected permissions: $PERM (expected 644)${NC}"
+    fi
+
+    # Test HTTP access
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/forms/ 2>/dev/null || echo "000")
+    if [ "$HTTP_CODE" = "200" ]; then
+        echo -e "${GREEN}✓ HTTP access working (200)${NC}"
+    else
+        echo -e "${YELLOW}⚠ Warning: HTTP returned code $HTTP_CODE${NC}"
+    fi
+
+    echo -e "${GREEN}✓ Deployment verification completed${NC}"
+fi
 
 echo ""
 echo -e "${GREEN}==================================="

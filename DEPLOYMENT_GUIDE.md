@@ -600,29 +600,130 @@ chmod +x setup-raspberry-pi.sh
 
 #### 정기 배포 (Windows에서 푸시 후 실행)
 
+**Step 1: 배포 전 검증 (권장)**
+
 ```bash
-# Raspberry Pi에서 실행
 cd ~/workspace/mcp-agent-server
-sudo ./deploy-and-restart.sh
+
+# 배포 전 환경 검증
+./scripts/pre-deploy-check.sh
+```
+
+**검증 항목:**
+- ✅ Git 워킹 디렉토리 상태 (uncommitted changes 체크)
+- ✅ 파일 소유권 (raspi:raspi 확인)
+- ✅ 네트워크 연결 (GitHub 접근 가능)
+- ✅ 디스크 공간 (충분한 공간 확인)
+- ✅ 웹 서버 상태 (nginx/apache 실행 중)
+
+**Step 2: 배포 실행**
+
+```bash
+cd ~/workspace/mcp-agent-server
+sudo ./deploy-forms.sh
 ```
 
 **자동으로 수행하는 작업:**
-1. **Git 충돌 자동 해결:**
-   - 로컬 변경 사항 감지 → 자동 stash
-   - `git fetch origin main`
-   - `git reset --hard origin/main` (병합 충돌 없음)
+
+1. **Git Pull:**
+   ```bash
+   git pull origin main
+   ```
+
 2. **배포:**
    - 기존 배포 백업 (`forms.backup.YYYYMMDD_HHMMSS`)
    - 심볼릭 링크 생성 (`/var/www/html/forms` → `forms-interface`)
-3. **권한 설정:**
-   - 디렉토리 권한: 755
-   - 핵심 파일 읽기 전용: 444 (`index.html`, `script.js`, `styles.css`)
-4. **서비스 재시작:**
-   - nginx 또는 apache2 자동 재시작
-5. **검증:**
-   - 심볼릭 링크 존재 확인
-   - `script.js` 존재 확인
-   - 캐시 버전 일치 확인
+
+3. **권한 설정 (Git 호환성 유지):**
+   ```bash
+   # 중요: chown 사용하지 않음 (사용자 소유권 유지)
+   # 디렉토리: 755 (rwxr-xr-x)
+   sudo find "$FORMS_DIR" -type d -exec chmod 755 {} \;
+   # 파일: 644 (rw-r--r--)
+   sudo find "$FORMS_DIR" -type f -exec chmod 644 {} \;
+   ```
+
+4. **자동 검증:**
+   - ✅ 심볼릭 링크 존재 확인
+   - ✅ 파일 권한 확인 (644)
+   - ✅ HTTP 접속 테스트 (200 OK)
+
+**출력 예시:**
+```
+===================================
+Forms Interface Deployment Script
+===================================
+
+Step 1: Pulling latest changes from git...
+✓ Git pull completed
+
+Step 2: Detecting web server...
+✓ Detected: nginx
+
+Step 3: Deploying to /var/www/html...
+Backing up existing forms directory...
+Creating symbolic link...
+Setting permissions...
+✓ Deployment completed
+
+Forms interface is now available at:
+  → http://localhost/forms
+  → https://forms.abyz-lab.work (via Cloudflare Tunnel)
+
+Step 4: Verifying deployment...
+✓ Symbolic link exists
+✓ File permissions correct (644)
+✓ HTTP access working (200)
+✓ Deployment verification completed
+
+===================================
+Deployment completed successfully!
+===================================
+
+Test the form at: https://forms.abyz-lab.work
+```
+
+#### 배포 문제 해결
+
+**문제: Git pull 실패 ("Permission denied")**
+
+```bash
+# 원인: 파일 소유권이 www-data로 변경되어 Git이 파일을 수정할 수 없음
+# 해결: 소유권 복원
+sudo chown -R raspi:raspi forms-interface/
+git pull origin main
+```
+
+**문제: pre-deploy-check.sh 실행 권한 없음**
+
+```bash
+chmod +x ./scripts/pre-deploy-check.sh
+```
+
+**문제: HTTP 403 Forbidden**
+
+```bash
+# 파일 권한 확인
+ls -la forms-interface/
+# 예상: -rw-r--r-- 1 raspi raspi (644 권한)
+
+# 권한 수정
+sudo find forms-interface -type f -exec chmod 644 {} \;
+sudo find forms-interface -type d -exec chmod 755 {} \;
+```
+
+#### 주의사항
+
+**❌ 하지 말아야 할 것:**
+- 배포 스크립트 내에서 `chown www-data:www-data` 사용
+- 파일 소유권을 root나 www-data로 변경
+- 750/640 권한 사용 (너무 제한적)
+
+**✅ 해야 할 것:**
+- 배포 전 `pre-deploy-check.sh` 실행
+- 파일 소유권을 사용자(raspi:raspi)로 유지
+- 755/644 권한 사용 (nginx 읽기 가능)
+- 배포 후 HTTP 접속 테스트
 
 **출력 예시:**
 ```
