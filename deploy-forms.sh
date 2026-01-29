@@ -104,10 +104,14 @@ case $WEB_SERVER in
         echo -e "${YELLOW}Creating symbolic link...${NC}"
         sudo ln -sf "$FORMS_DIR" "$DOC_ROOT/forms"
 
-        # Set permissions
+        # Set permissions (preserve user ownership, allow www-data to read)
         echo -e "${YELLOW}Setting permissions...${NC}"
-        sudo chown -R www-data:www-data "$FORMS_DIR"
-        sudo chmod -R 755 "$FORMS_DIR"
+        # Add www-data to group with read access, preserve user ownership
+        sudo chown -R $(whoami):www-data "$FORMS_DIR"
+        sudo chmod -R 750 "$FORMS_DIR"
+        # Ensure files are readable by www-data
+        sudo find "$FORMS_DIR" -type f -exec chmod 640 {} \;
+        sudo find "$FORMS_DIR" -type d -exec chmod 750 {} \;
 
         echo -e "${GREEN}✓ Deployment completed${NC}"
         echo ""
