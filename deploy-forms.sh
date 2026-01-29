@@ -112,6 +112,38 @@ case $WEB_SERVER in
         # Files: 644 (rw-r--r--) - owner read+write, group/others read-only
         sudo find "$FORMS_DIR" -type f -exec chmod 644 {} \;
 
+        # Configure nginx for forms (local testing)
+        if [ "$WEB_SERVER" = "nginx" ]; then
+            echo -e "${YELLOW}Configuring nginx for local access...${NC}"
+
+            # Create nginx config snippet for forms
+            NGINX_FORMS_CONF="/etc/nginx/snippets/forms-location.conf"
+            sudo tee "$NGINX_FORMS_CONF" > /dev/null << 'EOF'
+# Forms interface location configuration
+location /forms {
+    alias /home/raspi/workspace/mcp-agent-server/forms-interface;
+    index index.html;
+    try_files $uri $uri/ /forms/index.html =404;
+}
+EOF
+
+            # Check if snippet is already included in main config
+            if ! grep -q "snippets/forms-location.conf" /etc/nginx/sites-enabled/default; then
+                # Insert snippet include before the closing brace
+                sudo sed -i '/^\s*}\s*$/i include snippets/forms-location.conf;' /etc/nginx/sites-enabled/default
+            fi
+
+            # Test nginx configuration
+            if sudo nginx -t 2>/dev/null; then
+                echo -e "${GREEN}✓ nginx configuration is valid${NC}"
+                sudo systemctl reload nginx
+                echo -e "${GREEN}✓ nginx reloaded${NC}"
+            else
+                echo -e "${RED}✗ nginx configuration test failed${NC}"
+                echo "Skipping nginx reload. Local access may not work."
+            fi
+        fi
+
         echo -e "${GREEN}✓ Deployment completed${NC}"
         echo ""
         echo "Forms interface is now available at:"
