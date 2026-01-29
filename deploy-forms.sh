@@ -112,6 +112,26 @@ case $WEB_SERVER in
         # Files: 644 (rw-r--r--) - owner read+write, group/others read-only
         sudo find "$FORMS_DIR" -type f -exec chmod 644 {} \;
 
+        # Deploy to Cloudflare Tunnel path (port 8080 nginx)
+        CLOUDFLARE_FORMS_PATH="/var/www/forms.abyz-lab.work"
+        if [ -d "$CLOUDFLARE_FORMS_PATH" ]; then
+            echo -e "${YELLOW}Deploying to Cloudflare Tunnel path ($CLOUDFLARE_FORMS_PATH)...${NC}"
+
+            # Backup existing files
+            sudo cp "$CLOUDFLARE_FORMS_PATH/index.html" "$CLOUDFLARE_FORMS_PATH/index.html.backup.$(date +%Y%m%d_%H%M%S)" 2>/dev/null || true
+
+            # Copy files directly from git (preserve UTF-8 encoding)
+            git show HEAD:forms-interface/index.html | sudo tee "$CLOUDFLARE_FORMS_PATH/index.html" > /dev/null
+            git show HEAD:forms-interface/script.js | sudo tee "$CLOUDFLARE_FORMS_PATH/script.js" > /dev/null
+            git show HEAD:forms-interface/styles.css | sudo tee "$CLOUDFLARE_FORMS_PATH/styles.css" > /dev/null
+
+            # Set ownership and permissions
+            sudo chown www-data:www-data "$CLOUDFLARE_FORMS_PATH"/*
+            sudo chmod 644 "$CLOUDFLARE_FORMS_PATH"/*
+
+            echo -e "${GREEN}✓ Cloudflare Tunnel deployment updated${NC}"
+        fi
+
         # Configure nginx for forms (local testing)
         if [ "$WEB_SERVER" = "nginx" ]; then
             echo -e "${YELLOW}Configuring nginx for local access...${NC}"
@@ -149,7 +169,7 @@ EOF
         echo "Forms interface is now available at:"
         if [ "$WEB_SERVER" = "nginx" ] || [ "$WEB_SERVER" = "apache" ]; then
             echo "  → http://localhost/forms"
-            echo "  → https://forms.abyz-lab.work (via Cloudflare Tunnel)"
+            echo "  → https://forms.abyz-lab.work (via Cloudflare Tunnel on port 8080)"
         fi
         ;;
 

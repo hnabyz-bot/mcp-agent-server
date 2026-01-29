@@ -1086,7 +1086,76 @@ sudo ./deploy-and-restart.sh
 - 재발 방지를 위해 문서 업데이트
 - 팀원들과 공유
 
-### 6.11.7 학습된 교훈
+### 6.11.7 한글 인코딩 문제 (UTF-8 깨짐)
+
+**발생 일시:** 2026-01-29 forms-interface 배포
+
+**증상:**
+```
+<meta name="description" content="Gitea/Redmine ?�슈 ?�출 ??>
+<title>?�슈 ?�출 | Issue Submission</title>
+```
+모든 한글이 `?` 문자로 깨져서 표시됨
+
+**원인:**
+- Windows에서 파일 저장 시 UTF-8 BOM 또는 잘못된 인코딩 사용
+- Git 커밋 시 인코딩 정보 유실
+- `cp` 명령어로 복사할 때도 인코딩이 깨짐
+
+**해결:**
+```bash
+# 방법 1: Git에서 직접 복사 (인코딩 보존)
+git show HEAD:forms-interface/index.html | sudo tee /var/www/forms.abyz-lab.work/index.html > /dev/null
+
+# 방법 2: Windows에서 파일을 UTF-8로 다시 저장
+# 메모장이나 에디터에서 "UTF-8 without BOM"으로 저장
+
+# 방법 3: iconv로 인코딩 변환
+iconv -f CP949 -t UTF-8 index.html > index.html.utf8
+mv index.html.utf8 index.html
+```
+
+**예방:**
+- [ ] **Windows 에디터 설정:** VSCode/메모장에서 "UTF-8 without BOM" 기본 인코딩으로 설정
+- [ ] **Git 보존 설정:** `.gitattributes`에 `* text=auto eol=lf` 추가
+- [ ] **Pre-commit 체크:** UTF-8 유효성 검증 스크립트 추가
+- [ ] **배포 스크립트 개선:** `git show HEAD:` 로 직접 복사 (deploy-forms.sh에 이미 적용)
+
+### 6.11.8 Cloudflare Tunnel 경로 불일치
+
+**발생 일시:** 2026-01-29 외부 접속 테스트
+
+**증상:**
+- 로컬 접속 (`http://localhost/forms`) → 정상 작동
+- 외부 접속 (`https://forms.abyz-lab.work`) → 예상시간/진행률 필드 여전히 존재
+
+**원인:**
+- Cloudflare Tunnel은 포트 8080을 가리키고 있음
+- 포트 8080은 `/var/www/forms.abyz-lab.work/`를 서빙
+- `/var/www/html/forms/`와 `/var/www/forms.abyz-lab.work/`는 다른 파일
+
+**해결:**
+```bash
+# Cloudflare Tunnel 경로도 업데이트
+sudo cp forms-interface/index.html /var/www/forms.abyz-lab.work/
+sudo chown www-data:www-data /var/www/forms.abyz-lab.work/*
+```
+
+**영구적 해결 (deploy-forms.sh에 적용됨):**
+```bash
+# 배포 스크립트에 Cloudflare Tunnel 경로 자동 업데이트 추가
+CLOUDFLARE_FORMS_PATH="/var/www/forms.abyz-lab.work"
+git show HEAD:forms-interface/index.html | sudo tee "$CLOUDFLARE_FORMS_PATH/index.html" > /dev/null
+git show HEAD:forms-interface/script.js | sudo tee "$CLOUDFLARE_FORMS_PATH/script.js" > /dev/null
+git show HEAD:forms-interface/styles.css | sudo tee "$CLOUDFLARE_FORMS_PATH/styles.css" > /dev/null
+```
+
+**예방:**
+- [ ] 배포 스크립트에 두 경로 모두 업데이트 로직 포함 (✅ 완료)
+- [ ] Cloudflare Tunnel 설정 문서에 경로 명시
+- [ ] 배포 후 두 경로 모두 검증
+
+### 6.11.9 학습된 교훈
 
 **1. 환경 불일치 검증:**
 - ❌ Windows에서만 검증하고 배포 → 실제 환경에서 실패
@@ -1100,9 +1169,17 @@ sudo ./deploy-and-restart.sh
 - ❌ Windows/Unix 차이를 고려하지 않음
 - ✅ line ending, 권한, 파일 시스템 차이 고려
 
-**4. 검증 프로세스 부재:**
+**4. 인코딩 문제:**
+- ❌ 인코딩을 고려하지 않고 파일 복사/전송
+- ✅ Git에서 직접 복사하거나 UTF-8 검증 수행
+
+**5. 검증 프로세스 부재:**
 - ❌ 배포 후에만 검증
 - ✅ 배포 전/후 모두 검증, 단계별 진행
+
+**6. 다중 경로 고려:**
+- ❌ 하나의 경로만 배포하고 다른 경로는 확인 안 함
+- ✅ 모든 접속 경로(로컬, 외부, Cloudflare Tunnel) 동시에 배포
 
 ---
 
