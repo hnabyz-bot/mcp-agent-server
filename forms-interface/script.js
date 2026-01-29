@@ -258,40 +258,6 @@ function validateAssignee(field) {
 }
 
 /**
- * Validate progress field
- * @param {HTMLElement} field - Progress input field
- * @returns {boolean} True if valid
- */
-function validateProgress(field) {
-    const value = parseInt(field.value);
-
-    if (isNaN(value) || value < 0 || value > 100) {
-        showFieldError(field, '진행률은 0-100 사이의 값이어야 합니다');
-        return false;
-    }
-
-    clearFieldError(field);
-    return true;
-}
-
-/**
- * Validate estimated time field
- * @param {HTMLElement} field - Estimated time input field
- * @returns {boolean} True if valid
- */
-function validateEstimatedTime(field) {
-    const value = parseFloat(field.value);
-
-    if (field.value && (isNaN(value) || value < 0)) {
-        showFieldError(field, '예상 시간은 0 이상의 숫자여야 합니다');
-        return false;
-    }
-
-    clearFieldError(field);
-    return true;
-}
-
-/**
  * Validate related issues field
  * @param {HTMLElement} field - Related issues input field
  * @returns {boolean} True if valid
@@ -349,18 +315,6 @@ function validateForm() {
     // Validate assignee
     const assigneeField = document.getElementById('assignee');
     if (!validateAssignee(assigneeField)) {
-        isValid = false;
-    }
-
-    // Validate progress
-    const progressField = document.getElementById('progress');
-    if (!validateProgress(progressField)) {
-        isValid = false;
-    }
-
-    // Validate estimated time
-    const estimatedTimeField = document.getElementById('estimatedTime');
-    if (!validateEstimatedTime(estimatedTimeField)) {
         isValid = false;
     }
 

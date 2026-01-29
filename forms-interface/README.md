@@ -25,8 +25,6 @@ A modern, responsive HTML/CSS/JavaScript form for submitting Gitea/Redmine issue
 | **레이블 (Labels)** | Text | No | Comma-separated labels |
 | **담당자 (Assignee)** | Text | No | Email or username |
 | **마일스톤 (Milestone)** | Text | No | Milestone name |
-| **예상 시간 (Estimated Time)** | Number | No | Time estimate in hours |
-| **진행률 (Progress)** | Number | No | Progress percentage (0-100) |
 | **관련 이슈 (Related Issues)** | Text | No | Comma-separated issue IDs |
 | **첨부 파일 (Attachments)** | File | No | Multiple files (max 10 files, 10MB each) |
 
@@ -157,8 +155,6 @@ priority: 'low' | 'normal' | 'high' | 'urgent'
 labels: string
 assignee: string
 milestone: string
-estimatedTime: string
-progress: string
 relatedIssues: string
 file_0, file_1, ...: File objects
 fileCount: number
@@ -183,16 +179,6 @@ submittedAt: ISO datetime string
 ### Assignee
 - Required: No
 - Format: Valid email or username (alphanumeric with dashes/underscores)
-
-### Progress
-- Required: No
-- Range: 0-100
-- Default: 0
-
-### Estimated Time
-- Required: No
-- Format: Positive number (decimal allowed)
-- Unit: Hours
 
 ### Related Issues
 - Required: No
